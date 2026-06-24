@@ -48,10 +48,8 @@ function showLogin() {
 
 // ==================== OPEN TELEGRAM BOT ====================
 function openTelegramBot() {
-    // Open the bot in Telegram
     window.open('https://t.me/Hayubori_academyBot', '_blank');
     
-    // Show the student ID in an alert
     const studentId = localStorage.getItem('hayubori_student_id');
     const studentName = localStorage.getItem('hayubori_student_name');
     if (studentId && studentName) {
@@ -59,6 +57,36 @@ function openTelegramBot() {
     } else {
         alert('📱 Opening Telegram bot @Hayubori_academyBot\n\nPlease login first to get your Student ID.');
     }
+}
+
+// ==================== SHOW TAKE MY ID BUTTON AFTER PASSING EXAM ====================
+function showTakeMyIdButton(studentId, fullName) {
+    localStorage.setItem('hayubori_student_id', studentId);
+    localStorage.setItem('hayubori_student_name', fullName);
+    
+    // Show the "Take My ID" button on the exam container
+    const examContainer = document.getElementById('examContainer');
+    if (examContainer) {
+        examContainer.innerHTML = `
+            <div style="text-align:center; padding:50px; background:rgba(255,255,255,0.05); border-radius:30px; margin-top:50px; max-width:600px; margin-left:auto; margin-right:auto;">
+                <div style="font-size:70px; margin-bottom:20px;">🎉</div>
+                <h2 style="color:white; margin-bottom:20px;">Congratulations! You Passed the Exam!</h2>
+                <p style="color:rgba(255,255,255,0.8); font-size:18px; margin-bottom:10px;">Your Student ID: <strong style="color:#a8b5ff; font-size:24px;">${studentId}</strong></p>
+                <p style="color:rgba(255,255,255,0.6); margin-bottom:30px;">Click the button below to get your ID on Telegram</p>
+                <button onclick="openTelegramBot()" class="btn-success" style="padding:15px 40px; font-size:18px; background:linear-gradient(135deg,#0088cc,#2a9fd6); color:white; border:none; border-radius:50px; cursor:pointer;">
+                    <i class="fab fa-telegram"></i> Take My ID
+                </button>
+                <br><br>
+                <button onclick="window.location.href='student.html'" class="btn-warning" style="padding:12px 30px; font-size:14px; border:none; border-radius:50px; cursor:pointer;">
+                    Go to Dashboard →
+                </button>
+            </div>
+        `;
+    }
+}
+
+function goToDashboard() {
+    location.reload();
 }
 
 // ==================== STUDENT EXAM QUESTIONS BY GRADE ====================
@@ -78,7 +106,6 @@ function generateStudentExamQuestions(grade) {
             { text: "ውሻ በእንግሊዝኛ ምን ይባላል?", options: ["Cat", "Dog", "Cow", "Lion"], correct: 1 }
         ];
     }
-    
     // LOWER KG
     if (grade === "Lower KG") {
         return [
@@ -94,7 +121,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ቡና' በእንግሊዝኛ ምን ይባላል?", options: ["Tea", "Coffee", "Milk", "Juice"], correct: 1 }
         ];
     }
-    
     // UPPER KG
     if (grade === "Upper KG") {
         return [
@@ -110,7 +136,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ጥቁር' በእንግሊዝኛ ምን ይባላል?", options: ["Red", "White", "Black", "Blue"], correct: 2 }
         ];
     }
-    
     // GRADE 1
     if (grade === "Grade 1") {
         return [
@@ -126,7 +151,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ውሃ' በእንግሊዝኛ ምን ይባላል?", options: ["Fire", "Water", "Soil", "Air"], correct: 1 }
         ];
     }
-    
     // GRADE 2
     if (grade === "Grade 2") {
         return [
@@ -142,7 +166,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ቤት' በእንግሊዝኛ ምን ይባላል?", options: ["Water", "House", "Tree", "Road"], correct: 1 }
         ];
     }
-    
     // GRADE 3
     if (grade === "Grade 3") {
         return [
@@ -158,7 +181,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ጥቁር' ተቃራኒ ምንድነው?", options: ["ቀይ", "ነጭ", "ጥቁር", "ሰማያዊ"], correct: 1 }
         ];
     }
-    
     // GRADE 4
     if (grade === "Grade 4") {
         return [
@@ -174,7 +196,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ውሃ' በአማርኛ ምን ይባላል?", options: ["ውሃ", "እሳት", "አየር", "መሬት"], correct: 0 }
         ];
     }
-    
     // GRADE 5
     if (grade === "Grade 5") {
         return [
@@ -190,7 +211,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'በረድ' ምንድነው?", options: ["Cold", "Ice", "Snow", "Cool"], correct: 1 }
         ];
     }
-    
     // GRADE 6
     if (grade === "Grade 6") {
         return [
@@ -206,7 +226,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ፀሐይ' በእንግሊዝኛ ምን ይባላል?", options: ["Moon", "Sun", "Star", "Cloud"], correct: 1 }
         ];
     }
-    
     // GRADE 7
     if (grade === "Grade 7") {
         return [
@@ -222,7 +241,6 @@ function generateStudentExamQuestions(grade) {
             { text: "'ፍቅር' በእንግሊዝኛ ምን ይባላል?", options: ["Love", "Hate", "Joy", "Peace"], correct: 0 }
         ];
     }
-    
     // GRADE 8
     if (grade === "Grade 8") {
         return [
@@ -356,18 +374,8 @@ async function startSecureStudentExam(studentData, photoFile, telegramUsername) 
             try {
                 const result = await apiCall('/student/register', { method: 'POST', body: formData });
                 
-                // Save student ID for the "Take My ID" button
-                localStorage.setItem('hayubori_student_id', result.studentId);
-                localStorage.setItem('hayubori_student_name', studentData.fullName);
-                
-                let telegramNote = '';
-                if (result.telegramSent) {
-                    telegramNote = `✅ Your Student ID has been sent to your Telegram!\n\nCheck @Hayubori_academyBot`;
-                } else {
-                    telegramNote = `⚠️ ${result.telegramNote || 'Could not send to Telegram. Please start a chat with @Hayubori_academyBot first!'}\n\nYour Student ID: ${result.studentId}`;
-                }
-                
-                alert(`🎉 Passed! Score: ${percentage}%\n\n🆔 Your Student ID: ${result.studentId}\n\n${telegramNote}\n\n📱 Click the "Take My ID" button on your dashboard to open the bot!`);
+                // SHOW "TAKE MY ID" BUTTON AFTER PASSING EXAM
+                showTakeMyIdButton(result.studentId, studentData.fullName);
                 
                 document.getElementById('studentRegistrationSection').style.display = 'none';
                 document.getElementById('studentLoginSection').style.display = 'block';
