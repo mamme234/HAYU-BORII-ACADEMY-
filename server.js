@@ -211,7 +211,7 @@ function sendTelegramPhoto(chatId, photoBase64, caption) {
     });
 }
 
-// Check user exists in Telegram
+// Check user exists in Telegram (has started chat)
 function checkUserExists(telegramUsername) {
     return new Promise((resolve) => {
         if (!TELEGRAM_BOT_TOKEN || !telegramUsername) {
@@ -262,8 +262,6 @@ const dropAllIndexes = async () => {
         
         if (studentsCollection) {
             const indexes = await studentsCollection.indexes();
-            
-            // Drop all indexes except _id_
             const indexesToDrop = indexes.filter(idx => idx.name !== '_id_');
             
             for (const idx of indexesToDrop) {
@@ -288,7 +286,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 }).then(async () => {
     console.log('✅ MongoDB Connected');
     await dropAllIndexes();
-    // Recreate only the studentId index
     await Student.collection.createIndex({ studentId: 1 }, { unique: true });
     console.log('✅ Recreated studentId unique index');
     initializeDemoData();
@@ -476,7 +473,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
         
         console.log('✅ Student saved:', studentId);
         
-        // Send to ADMIN Telegram
+        // ==================== SEND TO ADMIN TELEGRAM ====================
         if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
             const adminMessage = `🎓 <b>NEW STUDENT REGISTERED!</b>\n\n👤 <b>Name:</b> ${fullName}\n🆔 <b>Student ID:</b> ${studentId}\n📚 <b>Grade:</b> ${grade}\n📧 <b>Email:</b> ${email}\n🤖 <b>Telegram:</b> ${telegram || 'Not provided'}\n📊 <b>Exam Score:</b> ${examScore}%`;
             await sendTelegramMessage(ADMIN_CHAT_ID, adminMessage);
@@ -485,7 +482,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             }
         }
         
-        // Send ID to STUDENT via Telegram
+        // ==================== SEND STUDENT ID TO STUDENT'S TELEGRAM ====================
         let studentMessageSent = false;
         let studentMessageError = null;
         
@@ -497,6 +494,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             
             console.log('📱 Attempting to send Telegram to student:', cleanTelegram);
             
+            // Check if user has started chat with bot
             const userExists = await checkUserExists(cleanTelegram);
             
             if (!userExists) {
@@ -508,7 +506,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
                 const sent = await sendTelegramMessage(cleanTelegram, studentMessage);
                 
                 if (sent) {
-                    console.log('✅ Student ID message sent to Telegram user:', cleanTelegram);
+                    console.log('✅ Student ID sent to Telegram user:', cleanTelegram);
                     studentMessageSent = true;
                 } else {
                     studentMessageError = 'Failed to send message';
@@ -526,7 +524,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             student,
             telegramSent: studentMessageSent,
             telegramError: studentMessageError,
-            telegramNote: studentMessageSent ? '✅ ID sent to Telegram' : '⚠️ Could not send Telegram. Please start a chat with @Hayubori_academyBot first!'
+            telegramNote: studentMessageSent ? '✅ Student ID sent to your Telegram!' : '⚠️ Could not send. Please start a chat with @Hayubori_academyBot first!'
         });
     } catch (error) {
         console.error('Registration error:', error);
@@ -609,6 +607,7 @@ app.post('/api/teacher/apply', upload.fields([{ name: 'photo' }, { name: 'docume
         
         console.log('📝 Teacher application submitted:', fullName);
         
+        // ==================== SEND TO ADMIN TELEGRAM ====================
         if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
             const adminMessage = `👨‍🏫 <b>NEW TEACHER APPLICATION!</b>\n\n👤 <b>Name:</b> ${fullName}\n📧 <b>Email:</b> ${email}\n🤖 <b>Telegram:</b> ${telegram || 'Not provided'}\n📚 <b>Grade Level:</b> ${gradeLevel}\n📊 <b>Exam Score:</b> ${examScore}%\n🔑 <b>Approval Code:</b> ${approvalCode}`;
             await sendTelegramMessage(ADMIN_CHAT_ID, adminMessage);
@@ -617,7 +616,48 @@ app.post('/api/teacher/apply', upload.fields([{ name: 'photo' }, { name: 'docume
             }
         }
         
-        res.json({ success: true, approvalCode });
+        // ==================== SEND APPROVAL CODE TO TEACHER'S TELEGRAM ====================
+        let teacherMessageSent = false;
+        let teacherMessageError = null;
+        
+        if (telegram && TELEGRAM_BOT_TOKEN) {
+            let cleanTelegram = telegram;
+            if (telegram.startsWith('@')) {
+                cleanTelegram = telegram.substring(1);
+            }
+            
+            console.log('📱 Attempting to send Approval Code to teacher:', cleanTelegram);
+            
+            const userExists = await checkUserExists(cleanTelegram);
+            
+            if (!userExists) {
+                teacherMessageError = 'User has not started a chat with the bot';
+                console.log('⚠️ Teacher has NOT started a chat with the bot. Please ask them to send /start to @Hayubori_academyBot');
+            } else {
+                const teacherMessage = `👨‍🏫 <b>Thank you for applying to Hayu Bori Academy, ${fullName}!</b>\n\n🔑 <b>Your Approval Code:</b> ${approvalCode}\n📚 <b>Grade Level:</b> ${gradeLevel}\n📊 <b>Exam Score:</b> ${examScore}%\n\n⏳ <b>Status:</b> Pending Review\n\nYou will be notified when your application is approved.\n\nThank you for choosing Hayu Bori Academy! 🇪🇹`;
+                
+                const sent = await sendTelegramMessage(cleanTelegram, teacherMessage);
+                
+                if (sent) {
+                    console.log('✅ Approval Code sent to Telegram user:', cleanTelegram);
+                    teacherMessageSent = true;
+                } else {
+                    teacherMessageError = 'Failed to send message';
+                    console.log('⚠️ Failed to send message to teacher');
+                }
+            }
+        } else {
+            teacherMessageError = 'No Telegram username provided';
+            console.log('⚠️ No Telegram username provided for teacher:', fullName);
+        }
+        
+        res.json({ 
+            success: true, 
+            approvalCode,
+            telegramSent: teacherMessageSent,
+            telegramError: teacherMessageError,
+            telegramNote: teacherMessageSent ? '✅ Approval Code sent to your Telegram!' : '⚠️ Could not send. Please start a chat with @Hayubori_academyBot first!'
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -655,15 +695,25 @@ app.post('/api/teacher/:id/approve', async (req, res) => {
         teacher.teacherId = generateTeacherId();
         await teacher.save();
         
+        // ==================== SEND APPROVAL NOTIFICATION TO TEACHER ====================
         if (teacher.telegram && TELEGRAM_BOT_TOKEN) {
             let cleanTelegram = teacher.telegram;
             if (teacher.telegram.startsWith('@')) cleanTelegram = teacher.telegram.substring(1);
             
             const userExists = await checkUserExists(cleanTelegram);
             if (userExists) {
-                const teacherMessage = `✅ <b>Congratulations ${teacher.fullName}!</b>\n\nYour teacher application has been <b>APPROVED</b>!\n\n🆔 <b>Teacher ID:</b> ${teacher.teacherId}\n🔑 <b>Approval Code:</b> ${teacher.approvalCode}\n\nWelcome to Hayu Bori Academy! 🎉`;
+                const teacherMessage = `✅ <b>Congratulations ${teacher.fullName}!</b>\n\nYour teacher application has been <b>APPROVED</b>!\n\n🆔 <b>Teacher ID:</b> ${teacher.teacherId}\n🔑 <b>Approval Code:</b> ${teacher.approvalCode}\n📚 <b>Grade Level:</b> ${teacher.gradeLevel}\n\n🔐 <b>Login with:</b>\n   Approval Code: ${teacher.approvalCode}\n   Full Name: ${teacher.fullName}\n\nWelcome to Hayu Bori Academy! 🎉`;
                 await sendTelegramMessage(cleanTelegram, teacherMessage);
+                console.log('✅ Approval notification sent to teacher:', cleanTelegram);
+            } else {
+                console.log('⚠️ Teacher has not started chat with bot. Cannot send approval message.');
             }
+        }
+        
+        // Notify admin
+        if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
+            const adminMessage = `✅ <b>TEACHER APPROVED!</b>\n\n👤 <b>Name:</b> ${teacher.fullName}\n🆔 <b>Teacher ID:</b> ${teacher.teacherId}\n📚 <b>Grade Level:</b> ${teacher.gradeLevel}`;
+            await sendTelegramMessage(ADMIN_CHAT_ID, adminMessage);
         }
         
         res.json({ success: true });
@@ -677,6 +727,7 @@ app.post('/api/teacher/:id/reject', async (req, res) => {
         const teacher = await Teacher.findById(req.params.id);
         if (!teacher) return res.status(404).json({ error: 'Teacher not found' });
         
+        // ==================== SEND REJECTION NOTIFICATION TO TEACHER ====================
         if (teacher.telegram && TELEGRAM_BOT_TOKEN) {
             let cleanTelegram = teacher.telegram;
             if (teacher.telegram.startsWith('@')) cleanTelegram = teacher.telegram.substring(1);
@@ -685,7 +736,14 @@ app.post('/api/teacher/:id/reject', async (req, res) => {
             if (userExists) {
                 const teacherMessage = `❌ <b>Dear ${teacher.fullName},</b>\n\nThank you for your interest in Hayu Bori Academy.\n\nAfter careful review, we regret to inform you that your application has not been accepted at this time.\n\nBest regards,\nHayu Bori Academy Board`;
                 await sendTelegramMessage(cleanTelegram, teacherMessage);
+                console.log('✅ Rejection notification sent to teacher:', cleanTelegram);
             }
+        }
+        
+        // Notify admin
+        if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
+            const adminMessage = `❌ <b>TEACHER REJECTED!</b>\n\n👤 <b>Name:</b> ${teacher.fullName}`;
+            await sendTelegramMessage(ADMIN_CHAT_ID, adminMessage);
         }
         
         await Teacher.findByIdAndDelete(req.params.id);
@@ -804,8 +862,8 @@ app.listen(PORT, () => {
     ║  👑 Admin Chat ID: ${ADMIN_CHAT_ID ? 'CONFIGURED ✅' : 'NOT CONFIGURED ❌'}
     ║  🗄️  Database: ${mongoose.connection.readyState === 1 ? 'CONNECTED ✅' : 'DISCONNECTED ❌'}
     ║                                                                    ║
-    ║  ⚠️ IMPORTANT FOR STUDENTS:                                       ║
-    ║     Students MUST start a chat with the bot FIRST!                ║
+    ║  ⚠️ IMPORTANT FOR STUDENTS & TEACHERS:                            ║
+    ║     MUST start a chat with the bot FIRST!                         ║
     ║     1. Open Telegram                                              ║
     ║     2. Search for: @Hayubori_academyBot                            ║
     ║     3. Click START button                                         ║
