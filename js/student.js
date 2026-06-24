@@ -46,6 +46,21 @@ function showLogin() {
     document.getElementById('studentProfileSection').style.display = 'none';
 }
 
+// ==================== OPEN TELEGRAM BOT ====================
+function openTelegramBot() {
+    // Open the bot in Telegram
+    window.open('https://t.me/Hayubori_academyBot', '_blank');
+    
+    // Show the student ID in an alert
+    const studentId = localStorage.getItem('hayubori_student_id');
+    const studentName = localStorage.getItem('hayubori_student_name');
+    if (studentId && studentName) {
+        alert(`📱 Opening Telegram bot @Hayubori_academyBot\n\n👤 Name: ${studentName}\n🆔 Your Student ID: ${studentId}\n\n💬 Click the bot to receive your ID via Telegram!\n\n⚠️ Make sure you have started a chat with @Hayubori_academyBot first!`);
+    } else {
+        alert('📱 Opening Telegram bot @Hayubori_academyBot\n\nPlease login first to get your Student ID.');
+    }
+}
+
 // ==================== STUDENT EXAM QUESTIONS BY GRADE ====================
 function generateStudentExamQuestions(grade) {
     // NURSERY
@@ -340,12 +355,25 @@ async function startSecureStudentExam(studentData, photoFile, telegramUsername) 
 
             try {
                 const result = await apiCall('/student/register', { method: 'POST', body: formData });
-                alert(`🎉 Passed! Score: ${percentage}%\nYour Student ID: ${result.studentId}\n\n📱 Check your Telegram for login details!`);
+                
+                // Save student ID for the "Take My ID" button
+                localStorage.setItem('hayubori_student_id', result.studentId);
+                localStorage.setItem('hayubori_student_name', studentData.fullName);
+                
+                let telegramNote = '';
+                if (result.telegramSent) {
+                    telegramNote = `✅ Your Student ID has been sent to your Telegram!\n\nCheck @Hayubori_academyBot`;
+                } else {
+                    telegramNote = `⚠️ ${result.telegramNote || 'Could not send to Telegram. Please start a chat with @Hayubori_academyBot first!'}\n\nYour Student ID: ${result.studentId}`;
+                }
+                
+                alert(`🎉 Passed! Score: ${percentage}%\n\n🆔 Your Student ID: ${result.studentId}\n\n${telegramNote}\n\n📱 Click the "Take My ID" button on your dashboard to open the bot!`);
+                
                 document.getElementById('studentRegistrationSection').style.display = 'none';
                 document.getElementById('studentLoginSection').style.display = 'block';
             } catch (err) {
                 console.error('Registration error:', err);
-                alert(`❌ Registration failed: ${err.message}\n\nMake sure you started a chat with the Telegram bot first!`);
+                alert(`❌ Registration failed: ${err.message}\n\nMake sure you started a chat with @Hayubori_academyBot first!`);
                 document.getElementById('studentRegistrationSection').style.display = 'block';
             }
         } else {
@@ -412,9 +440,16 @@ function displayStudentProfile(student) {
     
     document.getElementById('studentProfileContent').innerHTML = `
         <div class="form-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <h2><i class="fas fa-id-card"></i> STUDENT IDENTIFICATION CARD</h2>
-                <button onclick="logout()" class="btn-danger"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button onclick="openTelegramBot()" class="btn-success" style="padding:10px 25px; background:linear-gradient(135deg,#0088cc,#2a9fd6); color:white;">
+                        <i class="fab fa-telegram"></i> Take My ID
+                    </button>
+                    <button onclick="logout()" class="btn-danger" style="padding:10px 25px;">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
             </div>
         </div>
         
@@ -450,8 +485,11 @@ function displayStudentProfile(student) {
             </div>
         </div>
         
-        <div style="text-align:center; margin:10px 0;">
+        <div style="text-align:center; margin:10px 0; display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
             <button onclick="downloadStudentIDCard()" class="btn-success"><i class="fas fa-download"></i> Download ID Card</button>
+            <button onclick="openTelegramBot()" class="btn-warning" style="background:linear-gradient(135deg,#0088cc,#2a9fd6); color:white; padding:10px 25px;">
+                <i class="fab fa-telegram"></i> Get ID on Telegram
+            </button>
         </div>
         
         <div class="grid-3">
@@ -478,3 +516,9 @@ window.downloadStudentIDCard = () => {
     const card = document.getElementById('student-id-card');
     if(card) html2canvas(card,{scale:2}).then(canvas=>{const a=document.createElement('a'); a.download='HayuBori_Student_ID.png'; a.href=canvas.toDataURL(); a.click();});
 };
+
+// Make functions global
+window.openTelegramBot = openTelegramBot;
+window.showRegistration = showRegistration;
+window.showLogin = showLogin;
+window.logout = logout;
