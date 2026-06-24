@@ -46,46 +46,186 @@ function showLogin() {
     document.getElementById('studentProfileSection').style.display = 'none';
 }
 
-// Student Registration Form
-document.getElementById('studentRegForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const photoFile = document.getElementById('stuPhoto').files[0];
-    let telegramUsername = document.getElementById('stuTelegram').value.trim();
-    if (!photoFile) { alert('📸 Please upload your photo!'); return; }
-    if (!telegramUsername) { alert('🤖 Please enter your Telegram username!'); return; }
-    if (!telegramUsername.startsWith('@')) telegramUsername = '@' + telegramUsername;
-    
-    const fullName = document.getElementById('stuFullName').value.trim();
-    const email = document.getElementById('stuEmail').value.trim();
-    if (!fullName || !email) { alert('❌ Full Name and Email are required.'); return; }
-
-    startSecureStudentExam({
-        fullName, email,
-        phone: document.getElementById('stuPhone').value,
-        grade: document.getElementById('stuGrade').value,
-        parentName: document.getElementById('stuParentName').value,
-        parentPhone: document.getElementById('stuParentPhone').value,
-        address: document.getElementById('stuAddress').value
-    }, photoFile, telegramUsername);
-});
-
-// Student Login
-document.getElementById('studentLoginForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const studentId = document.getElementById('studentLoginId').value;
-    const fullName = document.getElementById('studentLoginName').value;
-    
-    try {
-        const data = await apiCall('/student/login', { method: 'POST', body: JSON.stringify({ studentId, fullName }) });
-        localStorage.setItem('hayubori_student_id', studentId);
-        localStorage.setItem('hayubori_student_name', fullName);
-        localStorage.setItem('hayubori_student_data', JSON.stringify(data.student));
-        displayStudentProfile(data.student);
-    } catch (err) {
-        alert('❌ Invalid Student ID or Name.\n\nCheck your Telegram for the correct Student ID.');
+// ==================== STUDENT EXAM QUESTIONS BY GRADE ====================
+function generateStudentExamQuestions(grade) {
+    // NURSERY
+    if (grade === "Nursery") {
+        return [
+            { text: "What color is the sky?", options: ["Red", "Blue", "Green", "Yellow"], correct: 1 },
+            { text: "Qubee meeqa harka tokko irra jira?", options: ["3", "4", "5", "6"], correct: 2 },
+            { text: "Bineensi 'Moo' jedhu eenyu?", options: ["Adurree", "Saree", "Sa'a", "Leenca"], correct: 2 },
+            { text: "ቀለም ሰማያዊ ምን ይባላል?", options: ["ቀይ", "ሰማያዊ", "አረንጓዴ", "ቢጫ"], correct: 1 },
+            { text: "Saree miila meeqa qaba?", options: ["2", "3", "4", "5"], correct: 2 },
+            { text: "Which is a fruit?", options: ["Carrot", "Onion", "Apple", "Potato"], correct: 2 },
+            { text: "Simbiroon eessa jiraata?", options: ["Bishaan", "Mandhee", "Holqa", "Dachee"], correct: 1 },
+            { text: "Biyyi keenya maal jedhama?", options: ["Kenya", "Itoophiyaa", "Sudan", "Egypt"], correct: 1 },
+            { text: "Fakkoon kubbaa maal fakkaata?", options: ["Iskuweer", "Saddeetto", "Goorroo", "Reektangilii"], correct: 2 },
+            { text: "ውሻ በእንግሊዝኛ ምን ይባላል?", options: ["Cat", "Dog", "Cow", "Lion"], correct: 1 }
+        ];
     }
-});
+    
+    // LOWER KG
+    if (grade === "Lower KG") {
+        return [
+            { text: "What letter does 'Ball' start with?", options: ["A", "B", "C", "D"], correct: 1 },
+            { text: "Lakkoofsa: 1, 2, ___, 4. Maal hafa?", options: ["5", "6", "3", "7"], correct: 2 },
+            { text: "Bineensi aannan nuu kennu eenyu?", options: ["Qeerransa", "Sa'a", "Leenca", "Yeeyyii"], correct: 1 },
+            { text: "'በረድ' ተቃራኒ ምንድነው?", options: ["ሞቃት", "ቀዝቃዛ", "እሳት", "ፀሐያማ"], correct: 0 },
+            { text: "Makiinaa golfaa meeqa qaba?", options: ["2", "3", "4", "5"], correct: 2 },
+            { text: "What is the opposite of 'hot'?", options: ["Warm", "Cold", "Fire", "Sunny"], correct: 1 },
+            { text: "Maal barbaadda?", options: ["Bishaan", "Qilleensa", "Biyyoo", "Ibidda"], correct: 1 },
+            { text: "Guyyaa Wiixata booda maal?", options: ["Dilbata", "Kibxata", "Roobii", "Jimaata"], correct: 1 },
+            { text: "Torban keessa guyyoota meeqa?", options: ["5", "6", "7", "8"], correct: 2 },
+            { text: "'ቡና' በእንግሊዝኛ ምን ይባላል?", options: ["Tea", "Coffee", "Milk", "Juice"], correct: 1 }
+        ];
+    }
+    
+    // UPPER KG
+    if (grade === "Upper KG") {
+        return [
+            { text: "2 + 3 meeqa?", options: ["4", "5", "6", "7"], correct: 1 },
+            { text: "Which word rhymes with 'sun'?", options: ["Run", "Sit", "Map", "Log"], correct: 0 },
+            { text: "Bokkaan ba'u yeroo kami?", options: ["Bara bona", "Bara bokkaa", "Bara birraa", "Bara arfaasaa"], correct: 1 },
+            { text: "'ታች' ተቃራኒ ምንድነው?", options: ["ላይ", "ታች", "ከፍ", "ጫፍ"], correct: 0 },
+            { text: "5 – 2 meeqa?", options: ["2", "3", "4", "5"], correct: 1 },
+            { text: "What do we call a baby dog?", options: ["Kitten", "Puppy", "Calf", "Chick"], correct: 1 },
+            { text: "Ilmi saree maal jedhama?", options: ["Adurree", "Xiyyaree", "Jabbii", "Lammii"], correct: 1 },
+            { text: "Biiftuun eessa baati?", options: ["Lixa", "Kibba", "Kaaba", "Bahaa"], correct: 3 },
+            { text: "Harka tokko irra qubee meeqa?", options: ["3", "4", "5", "6"], correct: 2 },
+            { text: "'ጥቁር' በእንግሊዝኛ ምን ይባላል?", options: ["Red", "White", "Black", "Blue"], correct: 2 }
+        ];
+    }
+    
+    // GRADE 1
+    if (grade === "Grade 1") {
+        return [
+            { text: "4 + 5 meeqa?", options: ["7", "8", "9", "10"], correct: 2 },
+            { text: "Which word rhymes with 'hat'?", options: ["Cat", "Dog", "Sun", "Log"], correct: 0 },
+            { text: "Caarrii miila meeqa qaba?", options: ["4", "6", "8", "10"], correct: 2 },
+            { text: "'ትልቅ' ተቃራኒ ምንድነው?", options: ["ትንሽ", "ረጅም", "ከባድ", "ሰፊ"], correct: 0 },
+            { text: "8 – 3 meeqa?", options: ["4", "5", "6", "7"], correct: 1 },
+            { text: "Plural of 'dog' is:", options: ["Doges", "Dogs", "Dog", "Dogies"], correct: 1 },
+            { text: "Maal fayyadamnee argina?", options: ["Gurra", "Ija", "Funyaan", "Afaan"], correct: 1 },
+            { text: "Biyyi keenya maal jedhama?", options: ["Kenya", "Venees", "Dachee", "Juupitarii"], correct: 2 },
+            { text: "Balkoon maal fakkaata?", options: ["Goorroo", "Iskuweer", "Saddeetto", "Reektangilii"], correct: 3 },
+            { text: "'ውሃ' በእንግሊዝኛ ምን ይባላል?", options: ["Fire", "Water", "Soil", "Air"], correct: 1 }
+        ];
+    }
+    
+    // GRADE 2
+    if (grade === "Grade 2") {
+        return [
+            { text: "6 × 3 meeqa?", options: ["15", "16", "17", "18"], correct: 3 },
+            { text: "Past tense of 'eat' is:", options: ["Eated", "Ate", "Eaten", "Eating"], correct: 1 },
+            { text: "Bineensi hanqaaquu baasu eenyu?", options: ["Saree", "Adurree", "Luka", "Sa'a"], correct: 2 },
+            { text: "'ቀዝቃዛ' ተቃራኒ ምንድነው?", options: ["ሞቃት", "ፀሐያማ", "በረድ", "ቀዝቃዛ"], correct: 0 },
+            { text: "100 – 45 meeqa?", options: ["45", "50", "55", "65"], correct: 2 },
+            { text: "Opposite of 'cold' is:", options: ["Cool", "Warm", "Hot", "Freezing"], correct: 2 },
+            { text: "Maal fayyadamnee yaanna?", options: ["Onnee", "Sammuu", "Somba", "Garu"], correct: 1 },
+            { text: "Kaarantii xiqqaa eenyu?", options: ["Afrikaa", "Eeshiyaa", "Awustiraaliyaa", "Yuurooppi"], correct: 2 },
+            { text: "Sa'aatii tokko keessa daqiiqaa meeqa?", options: ["30", "45", "50", "60"], correct: 3 },
+            { text: "'ቤት' በእንግሊዝኛ ምን ይባላል?", options: ["Water", "House", "Tree", "Road"], correct: 1 }
+        ];
+    }
+    
+    // GRADE 3
+    if (grade === "Grade 3") {
+        return [
+            { text: "7 × 8 meeqa?", options: ["48", "54", "56", "64"], correct: 2 },
+            { text: "Plural of 'fox' is:", options: ["Foxs", "Foxes", "Foxies", "Foxen"], correct: 1 },
+            { text: "Bishaan yeroo ho'u hundee isaa maal?", options: ["50°C", "75°C", "100°C", "120°C"], correct: 2 },
+            { text: "'ከባድ' ተቃራኒ ምንድነው?", options: ["ቀላል", "ትልቅ", "ትንሽ", "ጠባብ"], correct: 0 },
+            { text: "3/4 decimaliin maal ta'a?", options: ["0.25", "0.50", "0.75", "1.00"], correct: 2 },
+            { text: "Past tense of 'write' is:", options: ["Wrote", "Written", "Writed", "Writing"], correct: 0 },
+            { text: "Biqiltuun gaasii maal fudhatti?", options: ["Oksijiinii", "Naayitiroojiinii", "Kaarboonii daayi'oksaayidii", "Haayidiroojiinii"], correct: 2 },
+            { text: "Magaalaan guddoon Itoophiyaa maal?", options: ["Adaamaa", "Bahir Dar", "Finfinnee", "Dirre Dhawaa"], correct: 2 },
+            { text: "Heksaagoni qarqara meeqa qaba?", options: ["4", "5", "6", "7"], correct: 2 },
+            { text: "'ጥቁር' ተቃራኒ ምንድነው?", options: ["ቀይ", "ነጭ", "ጥቁር", "ሰማያዊ"], correct: 1 }
+        ];
+    }
+    
+    // GRADE 4
+    if (grade === "Grade 4") {
+        return [
+            { text: "144 ÷ 12 meeqa?", options: ["10", "11", "12", "13"], correct: 2 },
+            { text: "Past participle of 'eat' is:", options: ["Ate", "Eated", "Eaten", "Eating"], correct: 2 },
+            { text: "Lafti jireenya nuuf kennu maal jedhama?", options: ["Qaama", "Cirracha", "Cuffi", "Gubba"], correct: 2 },
+            { text: "'ትንሽ' ተቃራኒ ምንድነው?", options: ["ትልቅ", "ረጅም", "ከባድ", "ሰፊ"], correct: 0 },
+            { text: "4 fi 6 LCM meeqa?", options: ["8", "10", "12", "24"], correct: 2 },
+            { text: "Which is a verb?", options: ["House", "Run", "Book", "Chair"], correct: 1 },
+            { text: "Lafoo lafti kan hafe maal jedhama?", options: ["Mantilii", "Oboo", "Cuffi", "Cirracha"], correct: 0 },
+            { text: "Maallaqa Itoophiyaa maal?", options: ["Dollar", "Euro", "Birrii", "Poonndii"], correct: 2 },
+            { text: "15% of 200 meeqa?", options: ["15", "20", "25", "30"], correct: 3 },
+            { text: "'ውሃ' በአማርኛ ምን ይባላል?", options: ["ውሃ", "እሳት", "አየር", "መሬት"], correct: 0 }
+        ];
+    }
+    
+    // GRADE 5
+    if (grade === "Grade 5") {
+        return [
+            { text: "9 × 9 meeqa?", options: ["72", "81", "90", "99"], correct: 1 },
+            { text: "Which is a verb?", options: ["An action word", "A naming word", "A describing word", "A joining word"], correct: 0 },
+            { text: "Namni gaasii maal afuura baasa?", options: ["Oksijiinii", "Naayitiroojiinii", "Kaarboonii daayi'oksaayidii", "Haayidiroojiinii"], correct: 2 },
+            { text: "'አዲስ' ተቃራኒ ምንድነው?", options: ["ጥንታዊ", "ልዩ", "ዘመናዊ", "ያረጀ"], correct: 3 },
+            { text: "Iskuweerii rog isaa 5 cm ta'e bal'inni isaa meeqa?", options: ["20 cm²", "25 cm²", "30 cm²", "35 cm²"], correct: 1 },
+            { text: "Which is a simile?", options: ["He is fast", "He runs like a cheetah", "He runs fast", "He is running"], correct: 1 },
+            { text: "Biqiltuun maal keessatti soorata tolcha?", options: ["Hidda", "Foliin", "Daraaraa", "Fudura"], correct: 1 },
+            { text: "Galaana baha Afrikaa maal?", options: ["Atlantic", "Pacific", "Indian", "Arctic"], correct: 2 },
+            { text: "Lakkoofsa waliif qoodama 1 fi ofi qofa eenyu?", options: ["4", "6", "7", "9"], correct: 2 },
+            { text: "'በረድ' ምንድነው?", options: ["Cold", "Ice", "Snow", "Cool"], correct: 1 }
+        ];
+    }
+    
+    // GRADE 6
+    if (grade === "Grade 6") {
+        return [
+            { text: "2/3 + 1/6 meeqa?", options: ["1/2", "5/6", "3/4", "7/6"], correct: 1 },
+            { text: "Past tense of 'write' is:", options: ["Wrote", "Written", "Writed", "Writing"], correct: 0 },
+            { text: "Galaana lafti isa guddaa eenyu?", options: ["Atlantic", "Pacific", "Indian", "Arctic"], correct: 1 },
+            { text: "'ጠዋት' ተቃራኒ ምንድነው?", options: ["ሌሊት", "ማታ", "ቀን", "ምሽት"], correct: 1 },
+            { text: "18 fi 24 GCF meeqa?", options: ["4", "6", "8", "12"], correct: 1 },
+            { text: "Which is a conjunction?", options: ["Because", "Run", "Happy", "Book"], correct: 0 },
+            { text: "Onneen hojiin isaa maal?", options: ["Yaasuu", "Dhiiga raasuu", "Sooruu", "Afuura baasuu"], correct: 1 },
+            { text: "Haroo guddoo Itoophiyaa maal?", options: ["Abayaa", "Tanaa", "Ziway", "Langano"], correct: 1 },
+            { text: "10% of 250 meeqa?", options: ["15", "20", "25", "30"], correct: 2 },
+            { text: "'ፀሐይ' በእንግሊዝኛ ምን ይባላል?", options: ["Moon", "Sun", "Star", "Cloud"], correct: 1 }
+        ];
+    }
+    
+    // GRADE 7
+    if (grade === "Grade 7") {
+        return [
+            { text: "2x + 5 = 17, x meeqa?", options: ["4", "5", "6", "7"], correct: 2 },
+            { text: "Which is a simile?", options: ["He is brave", "He is as brave as a lion", "He is bravery", "He bravely ran"], correct: 1 },
+            { text: "Soogiddaa keemikaalaa maal?", options: ["H₂O", "CO₂", "NaCl", "HCl"], correct: 2 },
+            { text: "'ራብ' ምን ማለት ነው?", options: ["Thirst", "Hunger", "Sleep", "Fear"], correct: 1 },
+            { text: "10, 20, 30 mean meeqa?", options: ["15", "20", "25", "30"], correct: 1 },
+            { text: "Past perfect of 'go' is:", options: ["Went", "Gone", "Had gone", "Going"], correct: 2 },
+            { text: "Oksijiinii atoomii lakkoofsi isaa meeqa?", options: ["6", "7", "8", "9"], correct: 2 },
+            { text: "Gammoojjii guddaa lafaa maal?", options: ["Gobi", "Kalahari", "Sahara", "Arabian"], correct: 2 },
+            { text: "Pythagoras theorem maal?", options: ["a+b=c", "a²+b²=c²", "a²-b²=c²", "a×b=c"], correct: 1 },
+            { text: "'ፍቅር' በእንግሊዝኛ ምን ይባላል?", options: ["Love", "Hate", "Joy", "Peace"], correct: 0 }
+        ];
+    }
+    
+    // GRADE 8
+    if (grade === "Grade 8") {
+        return [
+            { text: "5x – 3 = 2x + 12, x meeqa?", options: ["3", "4", "5", "6"], correct: 2 },
+            { text: "Passive of 'The cat ate the fish' is:", options: ["The fish ate the cat", "The fish was eaten by the cat", "The cat was eaten", "None"], correct: 1 },
+            { text: "Chlorophyll hojiin isaa maal?", options: ["Bishaan fudhachuu", "Ifa aduu qabachuu", "Hidda guddisuu", "Sanyii oomishuu"], correct: 1 },
+            { text: "'ህገ መንግስት' በእንግሊዝኛ ምን ይባላል?", options: ["Law", "Constitution", "Policy", "Rule"], correct: 1 },
+            { text: "Cube rog isaa 4 cm ta'e volyuumii meeqa?", options: ["16 cm³", "48 cm³", "64 cm³", "96 cm³"], correct: 2 },
+            { text: "Lafa socho'uuf sababa maal?", options: ["Bubbee", "Bokkaa", "Lafa socho'u (Tectonic plates)", "Garaacha qofa"], correct: 2 },
+            { text: "Laga guddoo Afrikaa maal?", options: ["Kongoo", "Naayilii", "Zambezi", "Niijer"], correct: 1 },
+            { text: "Simple interest 1000 Birr 5% irratti waggaa 2:", options: ["50", "75", "100", "150"], correct: 2 },
+            { text: "Which is a conjunction?", options: ["Although", "Run", "Happy", "Book"], correct: 0 },
+            { text: "'ገነት' በእንግሊዝኛ ምን ይባላል?", options: ["Heaven", "Hell", "Earth", "Sky"], correct: 0 }
+        ];
+    }
+}
 
+// ==================== START EXAM ====================
 async function startSecureStudentExam(studentData, photoFile, telegramUsername) {
     const questions = generateStudentExamQuestions(studentData.grade);
     let currentQuestion = 0, answers = new Array(questions.length).fill(-1), timeLeft = 300;
@@ -120,19 +260,47 @@ async function startSecureStudentExam(studentData, photoFile, telegramUsername) 
     document.addEventListener('visibilitychange', () => { if(examActive && document.hidden) violationHandler(); });
     window.addEventListener('blur', violationHandler);
 
-    const examHTML = `<div id="examContainer" class="exam-container"><div class="exam-timer">⏱️ Time: <span id="timer">05:00</span></div><div id="examContent"></div><div style="text-align:center; padding:15px; color:#ccc;">⚠️ DO NOT leave this page! 3 violations = termination</div></div>`;
+    const examHTML = `
+        <div id="examContainer" class="exam-container">
+            <div class="exam-timer">⏱️ Time: <span id="timer">05:00</span></div>
+            <div id="examContent"></div>
+            <div style="text-align:center; padding:15px; color: rgba(255,255,255,0.5); font-size:14px;">
+                ⚠️ DO NOT leave this page! 3 violations = termination
+            </div>
+        </div>
+    `;
     document.body.insertAdjacentHTML('beforeend', examHTML);
     try { await document.documentElement.requestFullscreen(); } catch(e) {}
 
     function render() {
         const q = questions[currentQuestion];
         document.getElementById('examContent').innerHTML = `
-            <div class="exam-question"><h3>Question ${currentQuestion+1}/${questions.length}</h3><p style="font-size:20px; margin:20px 0;">${q.text}</p>
-            ${q.options.map((opt, idx) => `<div class="exam-option ${answers[currentQuestion]===idx?'selected':''}" onclick="selectAnswer(${idx})">${String.fromCharCode(65+idx)}. ${opt}</div>`).join('')}</div>
-            <div style="display:flex; gap:15px; margin-top:20px;">
-                <button onclick="prevQuestion()" class="${currentQuestion===0?'btn-danger':'btn-success'}">◀ Previous</button>
-                <button onclick="nextQuestion()" class="btn-success" style="flex:1;">${currentQuestion===questions.length-1?'Submit Exam':'Next ▶'}</button>
-            </div>`;
+            <div class="exam-question" style="color: white;">
+                <h3 style="color: #a8b5ff;">Question ${currentQuestion+1}/${questions.length}</h3>
+                <p style="font-size:20px; margin:20px 0; color: white;">${q.text}</p>
+                ${q.options.map((opt, idx) => `
+                    <div class="exam-option ${answers[currentQuestion]===idx?'selected':''}" 
+                         onclick="selectAnswer(${idx})" 
+                         style="display:block; width:100%; padding:18px 25px; margin:12px 0; 
+                                background: ${answers[currentQuestion]===idx ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'rgba(255,255,255,0.05)'}; 
+                                border: ${answers[currentQuestion]===idx ? '2px solid #a8b5ff' : '2px solid rgba(255,255,255,0.15)'}; 
+                                border-radius: 60px; cursor: pointer; text-align: left; 
+                                font-size: 16px; color: white; transition: all 0.3s ease;">
+                        ${String.fromCharCode(65+idx)}. ${opt}
+                    </div>
+                `).join('')}
+                <div style="display:flex; gap:15px; margin-top:25px;">
+                    <button onclick="prevQuestion()" class="${currentQuestion===0?'btn-danger':'btn-success'}" 
+                            style="padding:12px 30px; border-radius:50px; border:none; font-weight:700; cursor:pointer;">
+                        ◀ Previous
+                    </button>
+                    <button onclick="nextQuestion()" class="btn-success" 
+                            style="padding:12px 30px; border-radius:50px; border:none; font-weight:700; cursor:pointer; flex:1;">
+                        ${currentQuestion===questions.length-1 ? 'Submit Exam' : 'Next ▶'}
+                    </button>
+                </div>
+            </div>
+        `;
     }
 
     window.selectAnswer = (idx) => { answers[currentQuestion] = idx; render(); };
@@ -193,6 +361,46 @@ async function startSecureStudentExam(studentData, photoFile, telegramUsername) 
     }, 1000);
     render();
 }
+
+// Student Registration Form
+document.getElementById('studentRegForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const photoFile = document.getElementById('stuPhoto').files[0];
+    let telegramUsername = document.getElementById('stuTelegram').value.trim();
+    if (!photoFile) { alert('📸 Please upload your photo!'); return; }
+    if (!telegramUsername) { alert('🤖 Please enter your Telegram username (e.g., @username)'); return; }
+    if (!telegramUsername.startsWith('@')) telegramUsername = '@' + telegramUsername;
+    
+    const fullName = document.getElementById('stuFullName').value.trim();
+    const email = document.getElementById('stuEmail').value.trim();
+    if (!fullName || !email) { alert('❌ Full Name and Email are required.'); return; }
+
+    startSecureStudentExam({
+        fullName, email,
+        phone: document.getElementById('stuPhone').value,
+        grade: document.getElementById('stuGrade').value,
+        parentName: document.getElementById('stuParentName').value,
+        parentPhone: document.getElementById('stuParentPhone').value,
+        address: document.getElementById('stuAddress').value
+    }, photoFile, telegramUsername);
+});
+
+// Student Login
+document.getElementById('studentLoginForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const studentId = document.getElementById('studentLoginId').value;
+    const fullName = document.getElementById('studentLoginName').value;
+    
+    try {
+        const data = await apiCall('/student/login', { method: 'POST', body: JSON.stringify({ studentId, fullName }) });
+        localStorage.setItem('hayubori_student_id', studentId);
+        localStorage.setItem('hayubori_student_name', fullName);
+        localStorage.setItem('hayubori_student_data', JSON.stringify(data.student));
+        displayStudentProfile(data.student);
+    } catch (err) {
+        alert('❌ Invalid Student ID or Name.\n\nCheck your Telegram for the correct Student ID.');
+    }
+});
 
 function displayStudentProfile(student) {
     document.getElementById('studentRegistrationSection').style.display = 'none';
