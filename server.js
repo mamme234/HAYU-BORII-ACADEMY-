@@ -254,30 +254,19 @@ if (TELEGRAM_BOT_TOKEN && ADMIN_CHAT_ID) {
     }, 3000);
 }
 
-
-// ==================== SCHEMAS ====================
-const studentSchema = new mongoose.Schema({
-    studentId: { type: String, unique: true, required: true },
-    fullName: { type: String, required: true },
-    email: { type: String, required: true },
-    telegram: { type: String },
-    phone: String,
-    grade: String,
-    parentName: String,
-    parentPhone: String,
-    address: String,
-    photoUrl: String,
-    // ethiopianId REMOVED - no longer needed
-    examScore: Number,
-    examViolations: { type: Number, default: 0 },
-    registration_paid: { type: Boolean, default: false },
-    term1_paid: { type: Boolean, default: false },
-    term2_paid: { type: Boolean, default: false },
-    term3_paid: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now }
+// ==================== MONGODB CONNECTION ====================
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(async () => {
+    console.log('✅ MongoDB Connected');
+    await dropIndexIfExists();
+    initializeDemoData();
+}).catch(err => {
+    console.error('❌ MongoDB Error:', err.message);
 });
 
-// Drop the problematic ethiopianId index if it exists
+// ==================== DROP ETHIOPIAN ID INDEX ====================
 const dropIndexIfExists = async () => {
     try {
         const collections = await mongoose.connection.db.collections();
@@ -295,16 +284,25 @@ const dropIndexIfExists = async () => {
     }
 };
 
-// ==================== MONGODB CONNECTION ====================
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(async () => {
-    console.log('✅ MongoDB Connected');
-    await dropIndexIfExists();
-    initializeDemoData();
-}).catch(err => {
-    console.error('❌ MongoDB Error:', err.message);
+// ==================== SCHEMAS ====================
+const studentSchema = new mongoose.Schema({
+    studentId: { type: String, unique: true, required: true },
+    fullName: { type: String, required: true },
+    email: { type: String, required: true },
+    telegram: { type: String },
+    phone: String,
+    grade: String,
+    parentName: String,
+    parentPhone: String,
+    address: String,
+    photoUrl: String,
+    examScore: Number,
+    examViolations: { type: Number, default: 0 },
+    registration_paid: { type: Boolean, default: false },
+    term1_paid: { type: Boolean, default: false },
+    term2_paid: { type: Boolean, default: false },
+    term3_paid: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
 });
 
 const teacherSchema = new mongoose.Schema({
@@ -359,7 +357,7 @@ async function initializeDemoData() {
         await Director.create([
             { type: 'kg', name: 'KG Director', password: 'kg123' },
             { type: 'elementary', name: 'Elementary Director', password: 'elem123' },
-            { type: 'high', name: 'High School Director', password: 'high123' }
+            { type: 'middle', name: 'Middle School Director', password: 'middle123' }
         ]);
         console.log('✅ Demo directors created');
     }
@@ -460,7 +458,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
         
         console.log('✅ Student saved:', studentId);
         
-        // Send to ADMIN Telegram with photo
+        // Send to ADMIN Telegram
         if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
             const adminMessage = `🎓 <b>NEW STUDENT REGISTERED!</b>\n\n👤 <b>Name:</b> ${fullName}\n🆔 <b>Student ID:</b> ${studentId}\n📚 <b>Grade:</b> ${grade}\n📧 <b>Email:</b> ${email}\n🤖 <b>Telegram:</b> ${telegram || 'Not provided'}\n📊 <b>Exam Score:</b> ${examScore}%`;
             await sendTelegramMessage(ADMIN_CHAT_ID, adminMessage);
@@ -469,7 +467,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             }
         }
         
-        // Send ID to STUDENT via Telegram - STUDENT MUST START CHAT FIRST
+        // Send ID to STUDENT via Telegram
         let studentMessageSent = false;
         let studentMessageError = null;
         
@@ -481,12 +479,11 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             
             console.log('📱 Attempting to send Telegram to student:', cleanTelegram);
             
-            // First check if user exists (has started chat with bot)
             const userExists = await checkUserExists(cleanTelegram);
             
             if (!userExists) {
                 studentMessageError = 'User has not started a chat with the bot';
-                console.log('⚠️ Student has NOT started a chat with the bot. Please ask them to send /start to @HayuBoriAcademyBot');
+                console.log('⚠️ Student has NOT started a chat with the bot. Please ask them to send /start to @Hayubori_academyBot');
             } else {
                 const studentMessage = `🎉 <b>Welcome to Hayu Bori Academy, ${fullName}!</b>\n\n🆔 <b>Your Student ID:</b> ${studentId}\n📚 <b>Grade:</b> ${grade}\n📊 <b>Exam Score:</b> ${examScore}%\n\n🔐 <b>Login with:</b>\n   Student ID: ${studentId}\n   Full Name: ${fullName}\n\n📱 <b>Parent Access:</b> Same Student ID\n\nThank you for choosing Hayu Bori Academy! 🇪🇹`;
                 
@@ -511,7 +508,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             student,
             telegramSent: studentMessageSent,
             telegramError: studentMessageError,
-            telegramNote: studentMessageSent ? '✅ ID sent to Telegram' : '⚠️ Could not send Telegram. Please start a chat with @HayuBoriAcademyBot first!'
+            telegramNote: studentMessageSent ? '✅ ID sent to Telegram' : '⚠️ Could not send Telegram. Please start a chat with @Hayubori_academyBot first!'
         });
     } catch (error) {
         console.error('Registration error:', error);
@@ -781,6 +778,16 @@ app.get('/api/teacher/:id', async (req, res) => {
     }
 });
 
+// ==================== DROP INDEX ENDPOINT (for debugging) ====================
+app.get('/api/drop-index', async (req, res) => {
+    try {
+        await Student.collection.dropIndex('ethiopianId_1');
+        res.json({ success: true, message: '✅ Index ethiopianId_1 dropped successfully!' });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+});
+
 // ==================== START SERVER ====================
 app.listen(PORT, () => {
     console.log(`
@@ -795,7 +802,7 @@ app.listen(PORT, () => {
     ║  ⚠️ IMPORTANT FOR STUDENTS:                                       ║
     ║     Students MUST start a chat with the bot FIRST!                ║
     ║     1. Open Telegram                                              ║
-    ║     2. Search for: @HayuBoriAcademyBot                            ║
+    ║     2. Search for: @Hayubori_academyBot                            ║
     ║     3. Click START button                                         ║
     ║     4. Send any message (say "Hello")                             ║
     ║     5. THEN register on the website                               ║
