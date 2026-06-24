@@ -1,5 +1,5 @@
 // ==================== CONFIGURATION ====================
-const API_BASE_URL = 'https://hayu-bori-academy.onrender.com/api';
+const API_BASE_URL = 'https://hayu-borii-academy.onrender.com/api';
 let examActive = false, examViolations = 0;
 
 // ==================== API CALL ====================
