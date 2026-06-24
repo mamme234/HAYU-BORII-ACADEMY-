@@ -254,16 +254,6 @@ if (TELEGRAM_BOT_TOKEN && ADMIN_CHAT_ID) {
     }, 3000);
 }
 
-// ==================== MONGODB CONNECTION ====================
-mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('✅ MongoDB Connected');
-    initializeDemoData();
-}).catch(err => {
-    console.error('❌ MongoDB Error:', err.message);
-});
 
 // ==================== SCHEMAS ====================
 const studentSchema = new mongoose.Schema({
@@ -277,6 +267,7 @@ const studentSchema = new mongoose.Schema({
     parentPhone: String,
     address: String,
     photoUrl: String,
+    // ethiopianId REMOVED - no longer needed
     examScore: Number,
     examViolations: { type: Number, default: 0 },
     registration_paid: { type: Boolean, default: false },
@@ -284,6 +275,36 @@ const studentSchema = new mongoose.Schema({
     term2_paid: { type: Boolean, default: false },
     term3_paid: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now }
+});
+
+// Drop the problematic ethiopianId index if it exists
+const dropIndexIfExists = async () => {
+    try {
+        const collections = await mongoose.connection.db.collections();
+        const studentsCollection = collections.find(c => c.collectionName === 'students');
+        if (studentsCollection) {
+            const indexes = await studentsCollection.indexes();
+            const indexExists = indexes.some(idx => idx.name === 'ethiopianId_1');
+            if (indexExists) {
+                await studentsCollection.dropIndex('ethiopianId_1');
+                console.log('✅ Dropped ethiopianId_1 index');
+            }
+        }
+    } catch (error) {
+        console.log('⚠️ Index drop skipped:', error.message);
+    }
+};
+
+// ==================== MONGODB CONNECTION ====================
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(async () => {
+    console.log('✅ MongoDB Connected');
+    await dropIndexIfExists();
+    initializeDemoData();
+}).catch(err => {
+    console.error('❌ MongoDB Error:', err.message);
 });
 
 const teacherSchema = new mongoose.Schema({
