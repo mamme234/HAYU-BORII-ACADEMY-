@@ -12,6 +12,31 @@ function openTelegramBot() {
     }
 }
 
+// ==================== SHOW TAKE MY CODE BUTTON AFTER PASSING EXAM ====================
+function showTakeMyCodeButton(approvalCode, fullName) {
+    localStorage.setItem('hayubori_teacher_code', approvalCode);
+    localStorage.setItem('hayubori_teacher_name', fullName);
+    
+    const examContainer = document.getElementById('examContainer');
+    if (examContainer) {
+        examContainer.innerHTML = `
+            <div style="text-align:center; padding:50px; background:rgba(255,255,255,0.05); border-radius:30px; margin-top:50px; max-width:600px; margin-left:auto; margin-right:auto;">
+                <div style="font-size:70px; margin-bottom:20px;">🎉</div>
+                <h2 style="color:white; margin-bottom:20px;">Congratulations! You Passed the Teacher Exam!</h2>
+                <p style="color:rgba(255,255,255,0.8); font-size:18px; margin-bottom:10px;">Your Approval Code: <strong style="color:#a8b5ff; font-size:24px;">${approvalCode}</strong></p>
+                <p style="color:rgba(255,255,255,0.6); margin-bottom:30px;">Click the button below to get your code on Telegram</p>
+                <button onclick="openTelegramBot()" class="btn-success" style="padding:15px 40px; font-size:18px; background:linear-gradient(135deg,#0088cc,#2a9fd6); color:white; border:none; border-radius:50px; cursor:pointer;">
+                    <i class="fab fa-telegram"></i> Take My Code
+                </button>
+                <br><br>
+                <button onclick="window.location.href='teacher.html'" class="btn-warning" style="padding:12px 30px; font-size:14px; border:none; border-radius:50px; cursor:pointer;">
+                    Go to Dashboard →
+                </button>
+            </div>
+        `;
+    }
+}
+
 async function startTeacherExam(teacherData, photoFile, docFile, telegramUsername) {
     const questions = generateTeacherExamQuestions();
     let currentQuestion = 0, answers = new Array(questions.length).fill(-1), timeLeft = 300;
@@ -100,11 +125,8 @@ async function startTeacherExam(teacherData, photoFile, docFile, telegramUsernam
             try {
                 const result = await apiCall('/teacher/apply', { method: 'POST', body: formData });
                 
-                // Save approval code for the "Take My Code" button
-                localStorage.setItem('hayubori_teacher_code', result.approvalCode);
-                localStorage.setItem('hayubori_teacher_name', teacherData.fullName);
-                
-                alert(`✅ Exam passed! Score: ${percentage}%\n\n🔑 Approval Code: ${result.approvalCode}\n\n📱 Click "Take My Code" on your dashboard to get it on Telegram!\n\n⚠️ Make sure you have started a chat with @Hayubori_academyBot first!`);
+                // SHOW "TAKE MY CODE" BUTTON AFTER PASSING EXAM
+                showTakeMyCodeButton(result.approvalCode, teacherData.fullName);
                 
                 document.getElementById('teacherRegistrationSection').style.display = 'none';
                 document.getElementById('teacherWaitingSection').style.display = 'block';
@@ -155,7 +177,6 @@ document.getElementById('teacherLoginForm')?.addEventListener('submit', async (e
     try {
         const data = await apiCall('/teacher/login', { method: 'POST', body: JSON.stringify({ code, fullName }) });
         
-        // Save approval code for "Take My Code" button
         localStorage.setItem('hayubori_teacher_code', code);
         localStorage.setItem('hayubori_teacher_name', fullName);
         
