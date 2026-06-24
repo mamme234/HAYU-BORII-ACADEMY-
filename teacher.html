@@ -28,7 +28,7 @@
                         <div class="form-group"><label>Phone *</label><input type="tel" id="teacherPhone" required></div>
                         <div class="form-group"><label>Grade Level *</label>
                             <select id="teacherGradeLevel">
-                                <option>KG</option><option>Elementary (1-4)</option><option>Middle (5-8)</option><option>High (9-12)</option>
+                                <option>KG</option><option>Elementary (1-4)</option><option>Middle (5-8)</option>
                             </select>
                         </div>
                         <div class="form-group"><label>Subject Specialization</label><input type="text" id="teacherSubject"></div>
@@ -64,6 +64,16 @@
 
         <div id="teacherProfileSection" style="display:none;"><div id="teacherProfileContent"></div></div>
 
+        <!-- ==================== MODALS ==================== -->
+        <!-- Copy all modals from student.html -->
+        <div id="purposeModal" class="modal">...</div>
+        <div id="feedbackModal" class="modal">...</div>
+        <div id="privacyModal" class="modal">...</div>
+        <div id="contactModal" class="modal">...</div>
+
+        <!-- ==================== SERVER STATUS & FOOTER ==================== -->
+        <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
+        
         <div class="footer-links">
             <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
             <a onclick="openModal('feedbackModal')"><i class="fas fa-comment-dots"></i> Feedback</a>
@@ -72,16 +82,7 @@
         </div>
     </div>
 
-    <!-- MODALS -->
-    <div id="purposeModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Purpose</h2><button class="close-modal" onclick="closeModal('purposeModal')">&times;</button></div><p>Built by Muhammad Ilyas for Hayu Bori Academy.</p></div></div>
-    <div id="feedbackModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Feedback</h2><button class="close-modal" onclick="closeModal('feedbackModal')">&times;</button></div><div class="star-rating" id="starRating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div><input type="hidden" id="feedbackRating" value="0"><form id="feedbackForm"><textarea rows="4" id="feedbackText" placeholder="Your feedback..."></textarea><button type="submit">Submit</button></form><p id="feedbackThanks" style="display:none;">Thank you!</p></div></div>
-    <div id="privacyModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Privacy Policy</h2><button class="close-modal" onclick="closeModal('privacyModal')">&times;</button></div><p>Your data is secure with Hayu Bori Academy.</p></div></div>
-    <div id="contactModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Contact</h2><button class="close-modal" onclick="closeModal('contactModal')">&times;</button></div><p>Email: ilyas@hayuboriacademy.edu.et</p></div></div>
-
-    <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
-    <div class="creator-credit">Created with ❤️ by Muhammad Ilyas | Hayu Bori Academy</div>
-
     <script src="js/main.js"></script>
     <script src="js/teacher.js"></script>
 </body>
-                                                                                     </html>
+</html>
