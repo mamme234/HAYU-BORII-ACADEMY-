@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Hayu Bori Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="roleModal" class="role-overlay">
+        <div class="role-container">
+            <img src="logo.png" alt="Hayu Bori Academy" style="width:120px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/120?text=HBA'">
+            <h1 style="color:white; font-size:2em; margin:15px 0 5px;">🏫 Hayu Bori Academy</h1>
+            <p style="color:rgba(255,255,255,0.7); font-size:1.1em;">Ethiopia's Premier Digital Education Platform</p>
+            <div class="flag" style="display:flex; gap:8px; justify-content:center; margin:15px 0;">
+                <span style="background:#078930; width:40px; height:25px; border-radius:4px;"></span>
+                <span style="background:#fcdd09; width:40px; height:25px; border-radius:4px;"></span>
+                <span style="background:#da121a; width:40px; height:25px; border-radius:4px;"></span>
+            </div>
+            <div class="role-buttons" style="display:grid; grid-template-columns:repeat(2,1fr); gap:20px; margin-top:35px;">
+                <a href="student.html" class="role-btn" style="background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:20px; border-radius:30px; text-decoration:none; font-weight:700; text-align:center; transition:all 0.3s;">👨‍🎓 Student</a>
+                <a href="teacher.html" class="role-btn" style="background:linear-gradient(135deg,#11998e,#38ef7d); color:white; padding:20px; border-radius:30px; text-decoration:none; font-weight:700; text-align:center; transition:all 0.3s;">👨‍🏫 Teacher</a>
+                <a href="parent.html" class="role-btn" style="background:linear-gradient(135deg,#f093fb,#f5576c); color:white; padding:20px; border-radius:30px; text-decoration:none; font-weight:700; text-align:center; transition:all 0.3s;">👪 Parent</a>
+                <a href="board.html" class="role-btn" style="background:linear-gradient(135deg,#fa709a,#fee140); color:#1a1a2e; padding:20px; border-radius:30px; text-decoration:none; font-weight:700; text-align:center; transition:all 0.3s;">🎯 Board</a>
+                <a href="director.html" class="role-btn" style="background:linear-gradient(135deg,#8E2DE2,#4A00E0); color:white; padding:20px; border-radius:30px; text-decoration:none; font-weight:700; text-align:center; transition:all 0.3s; grid-column:span 2;">📊 Director</a>
+            </div>
+            <p style="color:rgba(255,255,255,0.4); font-size:12px; margin-top:30px;">Secure • Smart • Simple</p>
+        </div>
+    </div>
+    <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
+    <div class="creator-credit">Created with ❤️ by Muhammad Ilyas | Hayu Bori Academy</div>
+    <script src="js/main.js"></script>
+</body>
+  </html>
