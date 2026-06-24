@@ -7,6 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        .role-btn:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 <body>
     <div id="roleModal" class="role-overlay">
@@ -29,8 +35,140 @@
             <p style="color:rgba(255,255,255,0.4); font-size:12px; margin-top:30px;">Secure • Smart • Simple</p>
         </div>
     </div>
+
     <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
-    <div class="creator-credit">Created with ❤️ by Muhammad Ilyas | Hayu Bori Academy</div>
+
+    <!-- Footer - Only links -->
+    <div class="footer-links" style="margin-top:30px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:center; gap:40px; flex-wrap:wrap;">
+        <a onclick="openModal('purposeModal')" style="color:rgba(255,255,255,0.7); cursor:pointer; text-decoration:none;"><i class="fas fa-lightbulb"></i> Purpose</a>
+        <a onclick="openModal('feedbackModal')" style="color:rgba(255,255,255,0.7); cursor:pointer; text-decoration:none;"><i class="fas fa-comment-dots"></i> Feedback</a>
+        <a onclick="openModal('privacyModal')" style="color:rgba(255,255,255,0.7); cursor:pointer; text-decoration:none;"><i class="fas fa-shield-alt"></i> Privacy</a>
+        <a onclick="openModal('contactModal')" style="color:rgba(255,255,255,0.7); cursor:pointer; text-decoration:none;"><i class="fas fa-address-card"></i> Contact</a>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+    <div id="purposeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-lightbulb"></i> The Problems I Solved - My Journey as a Developer</h2>
+                <button class="close-modal" onclick="closeModal('purposeModal')">&times;</button>
+            </div>
+            <div style="line-height: 1.9; font-size: 15px; color: rgba(255,255,255,0.8);">
+                <p><strong style="color: white;">👋 Hello, I'm Muhammad Ilyas. Let me tell you why I built Hayu Bori Academy.</strong></p>
+                <br>
+                <p>🔴 <strong style="color: #ff6b6b;">The Problem That Started It All:</strong> In 2024, I visited a small school in Addis Ababa. I saw teachers manually writing student records in dusty notebooks. ID cards were handwritten on paper that got lost within weeks. Exam cheating was rampant because there was no proctoring system. Parents had no way to check their child's progress. The director couldn't track payments. Teachers applied with paper forms that got lost in drawers. I knew I had to build something better.</p>
+                <br>
+                <p>⚙️ <strong style="color: #ffd93d;">Problem #1 - No Centralized Student Management</strong> → ✅ Digital profiles with Ethiopian ID, photo, grade tracking, exam scores, payments.</p>
+                <p>🔒 <strong style="color: #ffd93d;">Problem #2 - Exam Cheating & No Security</strong> → ✅ Ultra-secure exam: camera capture, no tab switching, violation tracking, 3 strikes termination.</p>
+                <p>🪪 <strong style="color: #ffd93d;">Problem #3 - Fake / Lost ID Cards</strong> → ✅ Digital ID cards with Ethiopian flag, downloadable PNG, printable.</p>
+                <p>💰 <strong style="color: #ffd93d;">Problem #4 - Payment Confusion & Lost Receipts</strong> → ✅ Digital receipts, email confirmations, payment dashboard.</p>
+                <p>👨‍🏫 <strong style="color: #ffd93d;">Problem #5 - Teacher Application Chaos</strong> → ✅ Digital registration, document upload, board approval workflow.</p>
+                <p>👪 <strong style="color: #ffd93d;">Problem #6 - Parents Had No Visibility</strong> → ✅ Parent portal with child's grades, payments, teacher assignments.</p>
+                <p>📊 <strong style="color: #ffd93d;">Problem #7 - Directors Had No Overview</strong> → ✅ Separate dashboards for KG, Elementary, High School directors.</p>
+                <p>📧 <strong style="color: #ffd93d;">Problem #8 - No Digital Communication</strong> → ✅ Real Telegram notifications for registration, exam results, Student IDs, approval codes, payment receipts.</p>
+                <br>
+                <p><strong style="color: white;">🌟 My Mission Continues:</strong> I will keep improving Hayu Bori Academy. It's free, secure, built for Ethiopia.</p>
+                <br>
+                <p><em>- Muhammad Ilyas | Full Stack Developer | Problem Solver</em></p>
+                <p><em>📧 Contact: ilyas@hayuboriacademy.edu.et</em></p>
+                <p><em>🤖 Telegram: @HayuBoriAcademyBot</em></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-comment-dots"></i> Share Your Feedback - I Read Every Single One!</h2>
+                <button class="close-modal" onclick="closeModal('feedbackModal')">&times;</button>
+            </div>
+            <div>
+                <p style="font-size: 16px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">Your feedback helps me improve Hayu Bori Academy. Please be honest!</p>
+                <div class="star-rating" id="starRating">
+                    <span class="star" data-value="1">★</span>
+                    <span class="star" data-value="2">★</span>
+                    <span class="star" data-value="3">★</span>
+                    <span class="star" data-value="4">★</span>
+                    <span class="star" data-value="5">★</span>
+                </div>
+                <input type="hidden" id="feedbackRating" value="0">
+                <form id="feedbackForm">
+                    <textarea rows="5" id="feedbackText" placeholder="What do you love? What can be better? Suggestions for new features? I want to hear everything!" style="width:100%; margin:15px 0; border-radius:25px; padding:18px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); color: white;"></textarea>
+                    <button type="submit" style="width:100%; padding:16px; font-size:16px; border-radius:50px;"><i class="fas fa-heart"></i> Submit Feedback (Anonymous)</button>
+                </form>
+                <p id="feedbackThanks" style="display:none; color:#38ef7d; margin-top:15px; text-align:center; font-weight:bold;">✅ Thank you! Your feedback has been saved and will help make Hayu Bori Academy better!</p>
+                <hr style="margin:25px 0; border-color: rgba(255,255,255,0.1);">
+                <p style="font-size:12px; color: rgba(255,255,255,0.5); text-align:center;">⭐ 5-star ratings make my day! ⭐</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Privacy Policy - Your Data is Safe With Me</h2>
+                <button class="close-modal" onclick="closeModal('privacyModal')">&times;</button>
+            </div>
+            <div style="line-height: 1.8; color: rgba(255,255,255,0.8);">
+                <p><strong style="color: white;">Last Updated: June 2026</strong></p>
+                <br>
+                <p>📌 <strong style="color: white;">What Data Does Hayu Bori Academy Collect?</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 15px;">
+                    <li><strong>Students:</strong> Full Name, Ethiopian ID, email address, phone number, grade level, parent/guardian information, home address, photograph, exam scores, violation records, payment history, Telegram username.</li>
+                    <li><strong>Teachers:</strong> Full Name, email address, phone number, education documents, teaching grades, subject specialization, years of experience, photograph, exam scores, application status, Telegram username.</li>
+                    <li><strong>Parents:</strong> Only viewing access to their child's data - no separate data collection.</li>
+                </ul>
+                <p>🔐 <strong style="color: white;">How Is Your Data Protected?</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 15px;">
+                    <li>✅ All passwords are encrypted using bcrypt hashing - never stored in plain text.</li>
+                    <li>✅ Exam photos are captured live and only used for identity verification during the exam.</li>
+                    <li>✅ All data is stored in secure MongoDB databases with access controls.</li>
+                    <li>✅ No third-party access - ever. Your data never leaves our secure servers.</li>
+                    <li>✅ HTTPS encryption protects all data transmission.</li>
+                </ul>
+                <p>📸 <strong style="color: white;">Exam Proctoring Privacy:</strong> Your photo is captured and used ONLY to verify your identity during the exam. Not shared, sold, or used for any other purpose.</p>
+                <p>👨‍👩‍👧 <strong style="color: white;">Parental Rights:</strong> Parents have full viewing access to their child's records. Cannot modify data.</p>
+                <p>🗑️ <strong style="color: white;">Data Deletion:</strong> Request deletion by emailing privacy@hayuboriacademy.edu.et. Removed within 7 business days.</p>
+                <p><em>I built this system with integrity. Your trust matters more than anything.</em></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-address-card"></i> Contact Me - Let's Connect!</h2>
+                <button class="close-modal" onclick="closeModal('contactModal')">&times;</button>
+            </div>
+            <div style="line-height: 1.9; color: rgba(255,255,255,0.8);">
+                <p><strong style="color: white;">👨‍💻 Created by Muhammad Ilyas</strong></p>
+                <br>
+                <p>📧 <strong style="color: white;">Email (Preferred):</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 15px;">
+                    <li>Support: <strong>ilyas@hayuboriacademy.edu.et</strong></li>
+                    <li>Business: <strong>business@hayuboriacademy.edu.et</strong></li>
+                    <li>Bugs: <strong>bugs@hayuboriacademy.edu.et</strong></li>
+                    <li>Privacy: <strong>privacy@hayuboriacademy.edu.et</strong></li>
+                </ul>
+                <p>🤖 <strong style="color: white;">Telegram Bot:</strong> @HayuBoriAcademyBot</p>
+                <p>📞 <strong style="color: white;">Phone / WhatsApp:</strong> +251-900-123456 (Ethiopia) | +1-555-987-6543 (International)</p>
+                <p>🌍 <strong style="color: white;">Social Media:</strong> Telegram: @MuhammadIlyas | LinkedIn: /in/muhammad-ilyas | GitHub: /muhammad-ilyas</p>
+                <p>📍 <strong style="color: white;">Location:</strong> Addis Ababa, Ethiopia (Remote support worldwide)</p>
+                <p>⏰ <strong style="color: white;">Response Time:</strong> I personally respond to all emails within 24-48 hours.</p>
+                <hr style="margin:20px 0; border-color: rgba(255,255,255,0.1);">
+                <p style="text-align:center;"><strong>💬 Want to collaborate or hire me? Let's talk!</strong></p>
+            </div>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
+    <script>
+        // Check server connection
+        checkServerConnection();
+
+        // Make modal functions available
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+    </script>
 </body>
-  </html>
+    </html>
