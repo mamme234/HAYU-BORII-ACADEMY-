@@ -25,7 +25,7 @@
                         <select id="directorType">
                             <option value="kg">KG Director (Nursery - Upper KG)</option>
                             <option value="elementary">Elementary Director (Grade 1-4)</option>
-                            <option value="high">High School Director (Grade 9-12)</option>
+                            <option value="middle">Middle School Director (Grade 5-8)</option>
                         </select>
                     </div>
                     <div class="form-group"><label>Password</label><input type="password" id="directorPassword" required></div>
@@ -36,6 +36,16 @@
         </div>
         <div id="directorProfileSection" style="display:none;"><div id="directorProfileContent"></div></div>
 
+        <!-- ==================== MODALS ==================== -->
+        <!-- Copy all modals from student.html -->
+        <div id="purposeModal" class="modal">...</div>
+        <div id="feedbackModal" class="modal">...</div>
+        <div id="privacyModal" class="modal">...</div>
+        <div id="contactModal" class="modal">...</div>
+
+        <!-- ==================== SERVER STATUS & FOOTER ==================== -->
+        <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
+        
         <div class="footer-links">
             <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
             <a onclick="openModal('feedbackModal')"><i class="fas fa-comment-dots"></i> Feedback</a>
@@ -43,9 +53,6 @@
             <a onclick="openModal('contactModal')"><i class="fas fa-address-card"></i> Contact</a>
         </div>
     </div>
-
-    <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
-    <div class="creator-credit">Created with ❤️ by Muhammad Ilyas | Hayu Bori Academy</div>
 
     <script src="js/main.js"></script>
     <script src="js/director.js"></script>
