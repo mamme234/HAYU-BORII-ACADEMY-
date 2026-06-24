@@ -254,35 +254,47 @@ if (TELEGRAM_BOT_TOKEN && ADMIN_CHAT_ID) {
     }, 3000);
 }
 
+// ==================== DROP ALL PROBLEMATIC INDEXES ====================
+const dropAllIndexes = async () => {
+    try {
+        const collections = await mongoose.connection.db.collections();
+        const studentsCollection = collections.find(c => c.collectionName === 'students');
+        
+        if (studentsCollection) {
+            const indexes = await studentsCollection.indexes();
+            
+            // Drop all indexes except _id_
+            const indexesToDrop = indexes.filter(idx => idx.name !== '_id_');
+            
+            for (const idx of indexesToDrop) {
+                try {
+                    await studentsCollection.dropIndex(idx.name);
+                    console.log(`✅ Dropped index: ${idx.name}`);
+                } catch (err) {
+                    console.log(`⚠️ Could not drop index ${idx.name}:`, err.message);
+                }
+            }
+        }
+        console.log('✅ All problematic indexes dropped successfully!');
+    } catch (error) {
+        console.log('⚠️ Index drop skipped:', error.message);
+    }
+};
+
 // ==================== MONGODB CONNECTION ====================
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(async () => {
     console.log('✅ MongoDB Connected');
-    await dropIndexIfExists();
+    await dropAllIndexes();
+    // Recreate only the studentId index
+    await Student.collection.createIndex({ studentId: 1 }, { unique: true });
+    console.log('✅ Recreated studentId unique index');
     initializeDemoData();
 }).catch(err => {
     console.error('❌ MongoDB Error:', err.message);
 });
-
-// ==================== DROP ETHIOPIAN ID INDEX ====================
-const dropIndexIfExists = async () => {
-    try {
-        const collections = await mongoose.connection.db.collections();
-        const studentsCollection = collections.find(c => c.collectionName === 'students');
-        if (studentsCollection) {
-            const indexes = await studentsCollection.indexes();
-            const indexExists = indexes.some(idx => idx.name === 'ethiopianId_1');
-            if (indexExists) {
-                await studentsCollection.dropIndex('ethiopianId_1');
-                console.log('✅ Dropped ethiopianId_1 index');
-            }
-        }
-    } catch (error) {
-        console.log('⚠️ Index drop skipped:', error.message);
-    }
-};
 
 // ==================== SCHEMAS ====================
 const studentSchema = new mongoose.Schema({
@@ -440,6 +452,12 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
         const { fullName, email, telegram, phone, grade, parentName, parentPhone, address, examScore, examViolations } = req.body;
         
         console.log('📝 Registering student:', fullName);
+        
+        // Check if email already exists
+        const existingStudent = await Student.findOne({ email });
+        if (existingStudent) {
+            return res.status(400).json({ error: 'Email already registered. Please use a different email.' });
+        }
         
         const studentId = generateStudentId();
         const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
@@ -637,7 +655,6 @@ app.post('/api/teacher/:id/approve', async (req, res) => {
         teacher.teacherId = generateTeacherId();
         await teacher.save();
         
-        // Send approval code to teacher via Telegram
         if (teacher.telegram && TELEGRAM_BOT_TOKEN) {
             let cleanTelegram = teacher.telegram;
             if (teacher.telegram.startsWith('@')) cleanTelegram = teacher.telegram.substring(1);
@@ -646,8 +663,6 @@ app.post('/api/teacher/:id/approve', async (req, res) => {
             if (userExists) {
                 const teacherMessage = `✅ <b>Congratulations ${teacher.fullName}!</b>\n\nYour teacher application has been <b>APPROVED</b>!\n\n🆔 <b>Teacher ID:</b> ${teacher.teacherId}\n🔑 <b>Approval Code:</b> ${teacher.approvalCode}\n\nWelcome to Hayu Bori Academy! 🎉`;
                 await sendTelegramMessage(cleanTelegram, teacherMessage);
-            } else {
-                console.log('⚠️ Teacher has not started chat with bot. Cannot send approval message.');
             }
         }
         
@@ -775,16 +790,6 @@ app.get('/api/teacher/:id', async (req, res) => {
         res.json(teacher);
     } catch (error) {
         res.status(500).json({ error: error.message });
-    }
-});
-
-// ==================== DROP INDEX ENDPOINT (for debugging) ====================
-app.get('/api/drop-index', async (req, res) => {
-    try {
-        await Student.collection.dropIndex('ethiopianId_1');
-        res.json({ success: true, message: '✅ Index ethiopianId_1 dropped successfully!' });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
     }
 });
 
