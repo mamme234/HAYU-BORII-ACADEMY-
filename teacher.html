@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Teacher Dashboard - Hayu Bori Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="logo.png" alt="Hayu Bori Academy" style="width:80px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/80?text=HBA'">
+            <h1>🏫 Hayu Bori Academy</h1>
+            <div class="flag"><span style="background:#078930;"></span><span style="background:#fcdd09;"></span><span style="background:#da121a;"></span></div>
+            <p style="color:white;">Teacher Portal</p>
+        </div>
+
+        <div id="teacherRegistrationSection">
+            <div class="form-card">
+                <h2><i class="fas fa-chalkboard-user"></i> Teacher Registration</h2>
+                <form id="teacherRegForm">
+                    <div class="grid-2">
+                        <div class="form-group"><label>Full Name *</label><input type="text" id="teacherFullName" required></div>
+                        <div class="form-group"><label>Email *</label><input type="email" id="teacherEmail" required></div>
+                        <div class="form-group"><label>Telegram Username</label><input type="text" id="teacherTelegram" placeholder="@username"></div>
+                        <div class="form-group"><label>Phone *</label><input type="tel" id="teacherPhone" required></div>
+                        <div class="form-group"><label>Grade Level *</label>
+                            <select id="teacherGradeLevel">
+                                <option>KG</option><option>Elementary (1-4)</option><option>Middle (5-8)</option><option>High (9-12)</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Subject Specialization</label><input type="text" id="teacherSubject"></div>
+                        <div class="form-group"><label>Years of Experience</label><input type="number" id="teacherExperience"></div>
+                        <div class="form-group"><label>Education Document *</label><input type="file" id="teacherDoc" accept=".pdf,.jpg,.png" required></div>
+                        <div class="form-group"><label>Upload Photo *</label><input type="file" id="teacherPhoto" accept="image/*" required></div>
+                    </div>
+                    <div class="form-group"><label>Why do you want to join Hayu Bori Academy?</label><textarea rows="3" id="teacherReason"></textarea></div>
+                    <button type="submit" class="btn-success">Submit Application →</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="teacherWaitingSection" style="display:none;">
+            <div class="card" style="text-align:center; padding:50px;">
+                <div style="font-size:70px;">⏳</div>
+                <h2 style="color:white;">Application Submitted Successfully!</h2>
+                <p style="color:rgba(255,255,255,0.7);">You will receive an approval code via Telegram within 2-3 business days.</p>
+                <button onclick="window.location.href='index.html'" class="btn-warning" style="margin-top:25px;">Back to Home</button>
+            </div>
+        </div>
+
+        <div id="teacherLoginSection" style="display:none;">
+            <div class="form-card">
+                <h2><i class="fas fa-lock"></i> Teacher Login</h2>
+                <form id="teacherLoginForm">
+                    <div class="form-group"><label>Approval Code</label><input type="text" id="teacherCode" required></div>
+                    <div class="form-group"><label>Full Name</label><input type="text" id="teacherLoginName" required></div>
+                    <button type="submit">Access My Dashboard →</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="teacherProfileSection" style="display:none;"><div id="teacherProfileContent"></div></div>
+
+        <div class="footer-links">
+            <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
+            <a onclick="openModal('feedbackModal')"><i class="fas fa-comment-dots"></i> Feedback</a>
+            <a onclick="openModal('privacyModal')"><i class="fas fa-shield-alt"></i> Privacy</a>
+            <a onclick="openModal('contactModal')"><i class="fas fa-address-card"></i> Contact</a>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="purposeModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Purpose</h2><button class="close-modal" onclick="closeModal('purposeModal')">&times;</button></div><p>Built by Muhammad Ilyas for Hayu Bori Academy.</p></div></div>
+    <div id="feedbackModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Feedback</h2><button class="close-modal" onclick="closeModal('feedbackModal')">&times;</button></div><div class="star-rating" id="starRating"><span class="star" data-value="1">★</span><span class="star" data-value="2">★</span><span class="star" data-value="3">★</span><span class="star" data-value="4">★</span><span class="star" data-value="5">★</span></div><input type="hidden" id="feedbackRating" value="0"><form id="feedbackForm"><textarea rows="4" id="feedbackText" placeholder="Your feedback..."></textarea><button type="submit">Submit</button></form><p id="feedbackThanks" style="display:none;">Thank you!</p></div></div>
+    <div id="privacyModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Privacy Policy</h2><button class="close-modal" onclick="closeModal('privacyModal')">&times;</button></div><p>Your data is secure with Hayu Bori Academy.</p></div></div>
+    <div id="contactModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Contact</h2><button class="close-modal" onclick="closeModal('contactModal')">&times;</button></div><p>Email: ilyas@hayuboriacademy.edu.et</p></div></div>
+
+    <div id="serverStatus" class="server-status offline">🔌 Checking server...</div>
+    <div class="creator-credit">Created with ❤️ by Muhammad Ilyas | Hayu Bori Academy</div>
+
+    <script src="js/main.js"></script>
+    <script src="js/teacher.js"></script>
+</body>
+                                                                                     </html>
