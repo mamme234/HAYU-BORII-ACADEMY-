@@ -45,6 +45,84 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } });
 
+// ==================== AUTO-ANSWER SYSTEM ====================
+const autoAnswers = {
+    'how to register': `📝 To register as a student:\n1. Go to the website\n2. Click "Student"\n3. Fill the registration form\n4. Take the secure exam\n5. Pass to get your Student ID\n\n🔗 https://hayu-borii-academy.vercel.app/student.html`,
+    
+    'how to login': `🔐 To login:\n1. Go to the website\n2. Click your role (Student/Teacher/Parent)\n3. Enter your credentials\n   - Students: Student ID + Full Name\n   - Teachers: Approval Code + Full Name\n   - Parents: Student ID\n\n🔗 https://hayu-borii-academy.vercel.app`,
+    
+    'payment': `💳 Payments at Hayu Bori Academy:\n• 4 Terms: Registration, Term 1-4\n• Methods: CBE, Telebirr, Coopay, Awash\n• Amounts: Registration 1000 ETB, Terms 3500 ETB each\n• Pay online through our secure payment gateway`,
+    
+    'exam': `📝 About the Exam:\n• 10 questions per grade\n• 5 minutes time limit\n• 50% to pass\n• Camera proctoring\n• 3 violations = termination\n• Questions in English, Afaan Oromo, and Amharic`,
+    
+    'id card': `🪪 Student ID Card:\n• Front: Photo + Basic Info\n• Back: QR Code with Rank, Average, Abilities\n• Password to scan: hayubori_student_id\n• Downloadable as PNG\n• Can be sent to Telegram`,
+    
+    'telegram': `🤖 Hayu Bori Academy Bot:\n• Username: @Hayubori_academyBot\n• Get your Student ID\n• View grades\n• Payment info\n• Commands: /start, /menu, /help, /id, /grades, /payments`,
+    
+    'grade': `📚 Grades Available:\n• Nursery\n• Lower KG\n• Upper KG\n• Grade 1-8 (Elementary & Middle School)\n\nHigh School coming soon!`,
+    
+    'parent': `👪 Parent Access:\n• Use your child's Student ID\n• View grades\n• Check payment status\n• Track attendance\n• Communicate with teachers`,
+    
+    'teacher': `👨‍🏫 Teacher Registration:\n1. Go to Teacher page\n2. Fill application form\n3. Upload documents\n4. Take the exam (60% to pass)\n5. Wait for approval\n6. Receive Approval Code via Telegram`,
+    
+    'contact': `📞 Contact Us:\n• Email: ilyas@hayuboriacademy.edu.et\n• Telegram: @Hayubori_academyBot\n• Phone: +251-900-123456\n• Location: Addis Ababa, Ethiopia`,
+    
+    'about': `🏫 About Hayu Bori Academy:\n• Established: 2024\n• Location: Addis Ababa, Ethiopia\n• Mission: Quality education for future leaders\n• Programs: KG, Elementary, Middle School\n\n🔗 https://hayu-borii-academy.vercel.app`,
+    
+    'help': `❓ Available Commands:\n• how to register - Registration guide\n• how to login - Login guide\n• payment - Payment info\n• exam - Exam info\n• id card - ID Card info\n• telegram - Telegram bot info\n• grade - Grades available\n• parent - Parent access\n• teacher - Teacher registration\n• contact - Contact info\n• about - About the school\n• help - Show this help`,
+    
+    'hello': `👋 Hello! Welcome to Hayu Bori Academy!\n\nI'm here to help you with:\n• Registration & Login\n• Exams & Grades\n• Payments & ID Cards\n• School Information\n\nType "help" to see all commands!`
+};
+
+function findAutoAnswer(question) {
+    const lowerQuestion = question.toLowerCase().trim();
+    
+    // Check for exact matches
+    for (const [key, answer] of Object.entries(autoAnswers)) {
+        if (lowerQuestion.includes(key) || key.includes(lowerQuestion)) {
+            return answer;
+        }
+    }
+    
+    // Check for keywords
+    const keywords = {
+        'register': autoAnswers['how to register'],
+        'login': autoAnswers['how to login'],
+        'sign in': autoAnswers['how to login'],
+        'pay': autoAnswers['payment'],
+        'payment': autoAnswers['payment'],
+        'exam': autoAnswers['exam'],
+        'test': autoAnswers['exam'],
+        'id': autoAnswers['id card'],
+        'card': autoAnswers['id card'],
+        'telegram': autoAnswers['telegram'],
+        'bot': autoAnswers['telegram'],
+        'grade': autoAnswers['grade'],
+        'class': autoAnswers['grade'],
+        'parent': autoAnswers['parent'],
+        'parents': autoAnswers['parent'],
+        'teacher': autoAnswers['teacher'],
+        'teachers': autoAnswers['teacher'],
+        'contact': autoAnswers['contact'],
+        'email': autoAnswers['contact'],
+        'phone': autoAnswers['contact'],
+        'about': autoAnswers['about'],
+        'school': autoAnswers['about'],
+        'help': autoAnswers['help'],
+        'hi': autoAnswers['hello'],
+        'hello': autoAnswers['hello'],
+        'hey': autoAnswers['hello']
+    };
+    
+    for (const [keyword, answer] of Object.entries(keywords)) {
+        if (lowerQuestion.includes(keyword)) {
+            return answer;
+        }
+    }
+    
+    return null;
+}
+
 // ==================== TELEGRAM BOT ====================
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
@@ -153,6 +231,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     try {
         const { message, callback_query } = req.body;
         
+        // Handle Callback Queries (Menu)
         if (callback_query) {
             const chatId = callback_query.message.chat.id;
             const data = callback_query.data;
@@ -172,9 +251,13 @@ app.post('/api/telegram/webhook', async (req, res) => {
             return;
         }
         
+        // Handle Regular Messages (Commands)
         if (message && message.text) {
             const chatId = message.chat.id;
             const text = message.text;
+            
+            // Auto-answer for questions
+            const autoAnswer = findAutoAnswer(text);
             
             if (text === '/start' || text === '/menu') {
                 const welcomeMsg = `🤖 <b>Hayu Bori Academy Bot</b>\n\nWelcome to Hayu Bori Academy! 🇪🇹\n\nI'm here to help you with:\n• Student ID & Login\n• Grades & Exam Scores\n• Payments & Receipts\n• School Information\n\n📌 Use the buttons below or type /help for assistance.`;
@@ -191,12 +274,37 @@ app.post('/api/telegram/webhook', async (req, res) => {
                 await sendTelegramMessage(chatId, '📞 <b>Contact</b>\n\n📧 Email: ilyas@hayuboriacademy.edu.et\n🤖 Telegram: @Hayubori_academyBot\n📞 Phone: +251-900-123456');
             } else if (text === '/about') {
                 await sendTelegramMessage(chatId, '🏫 <b>Hayu Bori Academy</b>\n\n📍 Addis Ababa, Ethiopia\n📚 KG • Elementary • Middle School\n\n🌟 <b>Mission:</b> Quality education for future leaders.\n\n🔗 https://hayu-borii-academy.vercel.app');
+            } else if (autoAnswer) {
+                // Auto-answer the question
+                await sendTelegramMessage(chatId, `🤖 <b>Auto-Response:</b>\n\n${autoAnswer}\n\n💡 Type "help" for more commands or ask me anything!`);
+            } else {
+                // Default response
+                await sendTelegramMessage(chatId, `🤖 I'm not sure about that. Here are things I can help with:\n\n• Registration & Login\n• Exams & Grades\n• Payments & ID Cards\n• School Information\n\nType "help" to see all commands!`);
             }
         }
         res.sendStatus(200);
     } catch (error) {
         console.error('Webhook error:', error);
         res.sendStatus(500);
+    }
+});
+
+// ==================== AUTO-ANSWER FOR QUESTIONS (API) ====================
+app.post('/api/auto-answer', async (req, res) => {
+    try {
+        const { question } = req.body;
+        const answer = findAutoAnswer(question);
+        
+        if (answer) {
+            res.json({ success: true, answer });
+        } else {
+            res.json({ 
+                success: false, 
+                answer: "I'm not sure about that. Please ask about: Registration, Login, Payments, Exams, ID Cards, Telegram, Grades, Parent access, Teacher registration, or Contact info." 
+            });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
@@ -430,7 +538,6 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             photoBase64 = `data:image/jpeg;base64,${photoBuffer.toString('base64')}`;
         }
         
-        // Calculate average and rank
         const average = parseInt(examScore) || 0;
         let rank = 'Average';
         let abilities = 'Good academic standing';
@@ -448,7 +555,6 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             abilities = 'Requires additional support and study effort';
         }
         
-        // Generate QR Code with ALL data
         const qrData = JSON.stringify({
             studentId: studentId,
             name: fullName,
@@ -474,13 +580,11 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
         console.log('✅ Student saved:', studentId);
         console.log('✅ QR Code generated for:', studentId);
         
-        // Send Student ID via Telegram
         let telegramSent = false;
         if (telegram && TELEGRAM_BOT_TOKEN) {
             telegramSent = await sendStudentIdToTelegram(telegram, studentId, fullName, grade, examScore);
         }
         
-        // Notify Admin
         if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
             const adminMsg = `🎓 NEW STUDENT!\n👤 ${fullName}\n🆔 ${studentId}\n📚 ${grade}\n📊 Score: ${examScore}%\n🏅 Rank: ${rank}\n🤖 Telegram: ${telegram || 'N/A'}`;
             await sendTelegramMessage(ADMIN_CHAT_ID, adminMsg);
@@ -556,6 +660,50 @@ app.post('/api/verify-qr', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// ==================== QUESTIONS WITH AUTO-ANSWER ====================
+app.post('/api/questions', async (req, res) => {
+    try {
+        const { name, email, question } = req.body;
+        
+        // Check for auto-answer first
+        const autoAnswer = findAutoAnswer(question);
+        let answer = '';
+        let isAnswered = false;
+        
+        if (autoAnswer) {
+            answer = autoAnswer;
+            isAnswered = true;
+        }
+        
+        const q = await Question.create({ 
+            name, 
+            email, 
+            question,
+            answer: answer,
+            isAnswered: isAnswered
+        });
+        
+        // If auto-answered, send notification
+        if (isAnswered) {
+            console.log('✅ Question auto-answered:', question);
+        }
+        
+        res.json({ 
+            success: true, 
+            question: q,
+            autoAnswered: isAnswered,
+            answer: answer
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.get('/api/questions', async (req, res) => {
+    const questions = await Question.find().sort({ date: -1 });
+    res.json(questions);
 });
 
 // ==================== PAYMENT INITIATION ====================
@@ -640,7 +788,6 @@ app.post('/api/payment/webhook/:method', async (req, res) => {
                 await Student.updateOne({ studentId: payment.studentId }, updateField);
             }
 
-            // Send receipt via Telegram
             if (student?.telegram && TELEGRAM_BOT_TOKEN) {
                 const cleanTelegram = student.telegram.startsWith('@') ? student.telegram.substring(1) : student.telegram;
                 const receiptMsg = `🧾 <b>PAYMENT RECEIPT</b>\n\n👤 <b>Student:</b> ${student.fullName}\n🆔 <b>ID:</b> ${student.studentId}\n💵 <b>Amount:</b> ${payment.amount} ETB\n📋 <b>Type:</b> ${payment.type}\n📄 <b>Receipt:</b> ${payment.receiptNumber}\n✅ <b>Status:</b> ${payment.status.toUpperCase()}\n\n${payment.chappa}`;
@@ -855,36 +1002,6 @@ app.post('/api/payment/:id/reject', async (req, res) => {
         if (!payment) return res.status(404).json({ error: 'Payment not found' });
         payment.status = 'rejected';
         await payment.save();
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// ==================== QUESTIONS ====================
-app.post('/api/questions', async (req, res) => {
-    try {
-        const { name, email, question } = req.body;
-        const q = await Question.create({ name, email, question });
-        res.json({ success: true, question: q });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-app.get('/api/questions', async (req, res) => {
-    const questions = await Question.find().sort({ date: -1 });
-    res.json(questions);
-});
-
-app.post('/api/questions/:id/answer', async (req, res) => {
-    try {
-        const { answer } = req.body;
-        const q = await Question.findById(req.params.id);
-        if (!q) return res.status(404).json({ error: 'Question not found' });
-        q.answer = answer;
-        q.isAnswered = true;
-        await q.save();
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1134,8 +1251,8 @@ app.listen(PORT, () => {
     ║     Director: kg123 / elem123 / middle123                         ║
     ║     Finance: finance@hayubori.edu / finance123                    ║
     ║                                                                    ║
+    ║  🤖 Auto-Answer System: Enabled                                   ║
     ║  💳 Payment Methods: CBE, Telebirr, Coopay, Awash                 ║
-    ║  🤖 Bot Commands: /start, /menu, /help, /id, /grades, /payments  ║
     ║  🔐 QR Password: hayubori_student_id                              ║
     ╚═══════════════════════════════════════════════════════════════════╝
     `);
