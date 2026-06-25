@@ -506,3 +506,33 @@ button:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(102,126
 .id-card-back {
     background: linear-gradient(145deg, #050510, #0a0a2a);
     }
+/* ==================== ID CARD FRONT & BACK ==================== */
+.id-card-front, .id-card-back {
+    width: 550px;
+    background: linear-gradient(145deg, #0a0a2a, #050510);
+    border-radius: 20px;
+    padding: 25px;
+    margin: 25px auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(102,126,234,0.3);
+    transition: all 0.3s ease;
+}
+.id-card-front:hover, .id-card-back:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+.id-card-back {
+    background: linear-gradient(145deg, #050510, #0a0a2a);
+}
+
+/* ==================== PAYMENT BADGES ==================== */
+.badge-paid { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+.badge-unpaid { background: linear-gradient(135deg, #fa709a, #fee140); color: #1a1a2e; }
+.badge-pending { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+
+@media (max-width: 768px) {
+    .id-card-front, .id-card-back {
+        width: 95%;
+        padding: 15px;
+    }
+               }
