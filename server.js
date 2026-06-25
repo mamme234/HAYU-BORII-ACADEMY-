@@ -23,6 +23,7 @@ console.log('📧 ADMIN_CHAT_ID:', process.env.ADMIN_CHAT_ID ? '✅ SET' : '❌ 
 console.log('📧 MONGODB_URI:', process.env.MONGODB_URI ? '✅ SET' : '❌ MISSING');
 console.log('========================================');
 
+// ==================== MIDDLEWARE ====================
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -48,7 +49,6 @@ const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 }
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
-// Telegram Bot Commands & Menu
 function sendTelegramMessage(chatId, message) {
     return new Promise((resolve) => {
         if (!TELEGRAM_BOT_TOKEN || !chatId) {
@@ -99,24 +99,6 @@ function sendTelegramMessage(chatId, message) {
     });
 }
 
-// Send ID to Student via Telegram
-async function sendStudentIdToTelegram(telegramUsername, studentId, fullName, grade, examScore) {
-    if (!telegramUsername || !TELEGRAM_BOT_TOKEN) return false;
-    
-    let cleanTelegram = telegramUsername;
-    if (telegramUsername.startsWith('@')) cleanTelegram = telegramUsername.substring(1);
-    
-    const userExists = await checkUserExists(cleanTelegram);
-    if (!userExists) {
-        console.log('⚠️ User not found:', cleanTelegram);
-        return false;
-    }
-    
-    const message = `🎉 <b>Welcome to Hayu Bori Academy!</b>\n\n👤 <b>Name:</b> ${fullName}\n🆔 <b>Student ID:</b> ${studentId}\n📚 <b>Grade:</b> ${grade}\n📊 <b>Exam Score:</b> ${examScore}%\n\n🔐 <b>Login:</b>\n   Student ID: ${studentId}\n   Full Name: ${fullName}\n\n📱 <b>Parent Access:</b> Same Student ID\n\nThank you for choosing Hayu Bori Academy! 🇪🇹`;
-    
-    return await sendTelegramMessage(cleanTelegram, message);
-}
-
 function checkUserExists(telegramUsername) {
     return new Promise((resolve) => {
         if (!TELEGRAM_BOT_TOKEN || !telegramUsername) {
@@ -149,12 +131,28 @@ function checkUserExists(telegramUsername) {
     });
 }
 
-// ==================== TELEGRAM WEBHOOK (Bot Commands) ====================
+async function sendStudentIdToTelegram(telegramUsername, studentId, fullName, grade, examScore) {
+    if (!telegramUsername || !TELEGRAM_BOT_TOKEN) return false;
+    
+    let cleanTelegram = telegramUsername;
+    if (telegramUsername.startsWith('@')) cleanTelegram = telegramUsername.substring(1);
+    
+    const userExists = await checkUserExists(cleanTelegram);
+    if (!userExists) {
+        console.log('⚠️ User not found:', cleanTelegram);
+        return false;
+    }
+    
+    const message = `🎉 <b>Welcome to Hayu Bori Academy!</b>\n\n👤 <b>Name:</b> ${fullName}\n🆔 <b>Student ID:</b> ${studentId}\n📚 <b>Grade:</b> ${grade}\n📊 <b>Exam Score:</b> ${examScore}%\n\n🔐 <b>Login:</b>\n   Student ID: ${studentId}\n   Full Name: ${fullName}\n\n📱 <b>Parent Access:</b> Same Student ID\n\nThank you for choosing Hayu Bori Academy! 🇪🇹`;
+    
+    return await sendTelegramMessage(cleanTelegram, message);
+}
+
+// ==================== TELEGRAM WEBHOOK ====================
 app.post('/api/telegram/webhook', async (req, res) => {
     try {
         const { message, callback_query } = req.body;
         
-        // Handle Callback Queries (Menu)
         if (callback_query) {
             const chatId = callback_query.message.chat.id;
             const data = callback_query.data;
@@ -170,12 +168,10 @@ app.post('/api/telegram/webhook', async (req, res) => {
             } else if (data === 'contact') {
                 await sendTelegramMessage(chatId, '📞 <b>Contact</b>\n\n📧 Email: ilyas@hayuboriacademy.edu.et\n🤖 Telegram: @Hayubori_academyBot\n📞 Phone: +251-900-123456\n📍 Location: Addis Ababa, Ethiopia');
             }
-            
             res.sendStatus(200);
             return;
         }
         
-        // Handle Regular Messages (Commands)
         if (message && message.text) {
             const chatId = message.chat.id;
             const text = message.text;
@@ -197,7 +193,6 @@ app.post('/api/telegram/webhook', async (req, res) => {
                 await sendTelegramMessage(chatId, '🏫 <b>Hayu Bori Academy</b>\n\n📍 Addis Ababa, Ethiopia\n📚 KG • Elementary • Middle School\n\n🌟 <b>Mission:</b> Quality education for future leaders.\n\n🔗 https://hayu-borii-academy.vercel.app');
             }
         }
-        
         res.sendStatus(200);
     } catch (error) {
         console.error('Webhook error:', error);
@@ -212,13 +207,13 @@ mongoose.connect(process.env.MONGODB_URI, {
 }).then(async () => {
     console.log('✅ MongoDB Connected');
     await Student.collection.createIndex({ studentId: 1 }, { unique: true });
+    await Teacher.collection.createIndex({ teacherId: 1 }, { unique: true });
     initializeDemoData();
     setTelegramWebhook();
 }).catch(err => {
     console.error('❌ MongoDB Error:', err.message);
 });
 
-// Set Telegram Webhook
 async function setTelegramWebhook() {
     if (!TELEGRAM_BOT_TOKEN) return;
     const webhookUrl = `https://${process.env.BASE_URL || 'localhost:3000'}/api/telegram/webhook`;
@@ -435,24 +430,51 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             photoBase64 = `data:image/jpeg;base64,${photoBuffer.toString('base64')}`;
         }
         
+        // Calculate average and rank
+        const average = parseInt(examScore) || 0;
+        let rank = 'Average';
+        let abilities = 'Good academic standing';
+        if (average >= 90) {
+            rank = 'Excellent 🌟';
+            abilities = 'Outstanding academic performance, leadership qualities, critical thinking';
+        } else if (average >= 75) {
+            rank = 'Good 👍';
+            abilities = 'Strong academic performance, good problem-solving skills';
+        } else if (average >= 60) {
+            rank = 'Satisfactory 📚';
+            abilities = 'Satisfactory performance, needs improvement in some areas';
+        } else {
+            rank = 'Needs Improvement 📖';
+            abilities = 'Requires additional support and study effort';
+        }
+        
+        // Generate QR Code with ALL data
         const qrData = JSON.stringify({
             studentId: studentId,
             name: fullName,
             grade: grade,
             school: 'Hayu Bori Academy',
-            verified: true
+            verified: true,
+            rank: rank,
+            average: average,
+            abilities: abilities,
+            issuedDate: new Date().toISOString().split('T')[0],
+            status: 'Active'
         });
         const qrCode = await QRCode.toDataURL(qrData);
         
         const student = await Student.create({
             studentId, fullName, email, telegram, phone, grade, parentName, parentPhone, address,
-            photoUrl, examScore: parseInt(examScore), examViolations: parseInt(examViolations),
-            qrCode
+            photoUrl, examScore: average, examViolations: parseInt(examViolations),
+            qrCode,
+            rank: rank,
+            average: average
         });
         
         console.log('✅ Student saved:', studentId);
+        console.log('✅ QR Code generated for:', studentId);
         
-        // ==================== SEND STUDENT ID VIA TELEGRAM ====================
+        // Send Student ID via Telegram
         let telegramSent = false;
         if (telegram && TELEGRAM_BOT_TOKEN) {
             telegramSent = await sendStudentIdToTelegram(telegram, studentId, fullName, grade, examScore);
@@ -460,7 +482,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
         
         // Notify Admin
         if (ADMIN_CHAT_ID && TELEGRAM_BOT_TOKEN) {
-            const adminMsg = `🎓 NEW STUDENT!\n👤 ${fullName}\n🆔 ${studentId}\n📚 ${grade}\n📊 Score: ${examScore}%\n🤖 Telegram: ${telegram || 'N/A'}`;
+            const adminMsg = `🎓 NEW STUDENT!\n👤 ${fullName}\n🆔 ${studentId}\n📚 ${grade}\n📊 Score: ${examScore}%\n🏅 Rank: ${rank}\n🤖 Telegram: ${telegram || 'N/A'}`;
             await sendTelegramMessage(ADMIN_CHAT_ID, adminMsg);
         }
         
@@ -468,6 +490,7 @@ app.post('/api/student/register', upload.single('photo'), async (req, res) => {
             success: true, 
             studentId, 
             student,
+            qrCode: qrCode,
             telegramSent,
             telegramNote: telegramSent ? '✅ Student ID sent to Telegram!' : '⚠️ Could not send. Please start a chat with @Hayubori_academyBot first!'
         });
@@ -486,6 +509,50 @@ app.post('/api/student/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid Student ID or Name' });
         }
         res.json({ success: true, student });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== QR CODE VERIFICATION ====================
+app.post('/api/verify-qr', async (req, res) => {
+    try {
+        const { studentId, password } = req.body;
+        if (password !== 'hayubori_student_id') {
+            return res.status(401).json({ error: 'Invalid password. Required: hayubori_student_id' });
+        }
+        const student = await Student.findOne({ studentId });
+        if (!student) return res.status(404).json({ error: 'Student not found' });
+        
+        const average = student.examScore || 0;
+        let rank = 'Average';
+        let abilities = 'Good academic standing';
+        if (average >= 90) {
+            rank = 'Excellent 🌟';
+            abilities = 'Outstanding academic performance, leadership qualities, critical thinking';
+        } else if (average >= 75) {
+            rank = 'Good 👍';
+            abilities = 'Strong academic performance, good problem-solving skills';
+        } else if (average >= 60) {
+            rank = 'Satisfactory 📚';
+            abilities = 'Satisfactory performance, needs improvement in some areas';
+        } else {
+            rank = 'Needs Improvement 📖';
+            abilities = 'Requires additional support and study effort';
+        }
+        
+        res.json({
+            verified: true,
+            studentId: student.studentId,
+            name: student.fullName,
+            grade: student.grade,
+            school: 'Hayu Bori Academy',
+            rank: rank,
+            average: average,
+            abilities: abilities,
+            issuedDate: student.createdAt ? student.createdAt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            status: 'Active'
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -794,38 +861,6 @@ app.post('/api/payment/:id/reject', async (req, res) => {
     }
 });
 
-// ==================== QR CODE VERIFICATION ====================
-app.post('/api/verify-qr', async (req, res) => {
-    try {
-        const { studentId, password } = req.body;
-        if (password !== 'hayubori_student_id') {
-            return res.status(401).json({ error: 'Invalid password' });
-        }
-        const student = await Student.findOne({ studentId });
-        if (!student) return res.status(404).json({ error: 'Student not found' });
-        
-        const average = student.examScore || 0;
-        let rank = 'Average';
-        if (average >= 90) rank = 'Excellent';
-        else if (average >= 75) rank = 'Good';
-        else if (average >= 60) rank = 'Satisfactory';
-        else rank = 'Needs Improvement';
-        
-        res.json({
-            verified: true,
-            name: student.fullName,
-            studentId: student.studentId,
-            grade: student.grade,
-            rank: rank,
-            average: average,
-            school: 'Hayu Bori Academy',
-            status: 'Active'
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // ==================== QUESTIONS ====================
 app.post('/api/questions', async (req, res) => {
     try {
@@ -1101,6 +1136,7 @@ app.listen(PORT, () => {
     ║                                                                    ║
     ║  💳 Payment Methods: CBE, Telebirr, Coopay, Awash                 ║
     ║  🤖 Bot Commands: /start, /menu, /help, /id, /grades, /payments  ║
+    ║  🔐 QR Password: hayubori_student_id                              ║
     ╚═══════════════════════════════════════════════════════════════════╝
     `);
 });
