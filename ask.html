@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Ask - Hayu Bori Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <img src="logo.png" alt="Hayu Bori Academy" style="width:80px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/80?text=HBA'">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="statusDot" class="status-dot offline" title="Checking server..."></span>
+                    <h1 style="margin:0;">🏫 Hayu Bori Academy</h1>
+                </div>
+            </div>
+            <div class="flag"><span style="background:#078930;"></span><span style="background:#fcdd09;"></span><span style="background:#da121a;"></span></div>
+            <p style="color:white; margin-top:10px;">Ask Your Questions</p>
+        </div>
+
+        <div class="form-card">
+            <h2><i class="fas fa-question-circle"></i> Ask Anything About Hayu Bori Academy</h2>
+            <form id="askForm">
+                <div class="form-group"><label>Your Name</label><input type="text" id="askName" required></div>
+                <div class="form-group"><label>Your Email</label><input type="email" id="askEmail" required></div>
+                <div class="form-group"><label>Your Question</label><textarea rows="5" id="askQuestion" required placeholder="What would you like to know about Hayu Bori Academy?"></textarea></div>
+                <button type="submit" class="btn-success">Submit Question →</button>
+            </form>
+            <div id="askSuccess" style="display:none; color:#38ef7d; margin-top:20px; padding:20px; background:rgba(56,239,125,0.1); border-radius:20px; text-align:center;">
+                ✅ Your question has been submitted! We'll respond within 24-48 hours.
+            </div>
+        </div>
+
+        <div class="form-card" style="margin-top:30px;">
+            <h2><i class="fas fa-comments"></i> Recent Questions & Answers</h2>
+            <div id="questionsList" style="margin-top:20px;">
+                <p style="color:rgba(255,255,255,0.6);">Loading questions...</p>
+            </div>
+        </div>
+
+        <!-- ==================== MODALS ==================== -->
+        <div id="purposeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-lightbulb"></i> The Problems I Solved</h2>
+                    <button class="close-modal" onclick="closeModal('purposeModal')">&times;</button>
+                </div>
+                <div style="line-height: 1.9; font-size: 15px; color: rgba(255,255,255,0.8);">
+                    <p><strong style="color: white;">👋 Hello, I'm Muhammad Ilyas.</strong></p>
+                    <br>
+                    <p>🔴 <strong style="color: #ff6b6b;">The Problem:</strong> Teachers manually writing student records. ID cards handwritten. Exam cheating rampant. Parents had no visibility.</p>
+                    <br>
+                    <p>⚙️ <strong style="color: #ffd93d;">Solutions:</strong></p>
+                    <p>✅ Digital profiles with photo, grade tracking, exam scores</p>
+                    <p>✅ Ultra-secure exam with camera capture, violation tracking</p>
+                    <p>✅ Digital ID cards with QR code verification</p>
+                    <p>✅ 4 Terms payment system with CBE, Awash, Telebirr, Coop</p>
+                    <p>✅ Finance dashboard with approval and receipt system</p>
+                    <p>✅ Admin panel for full control</p>
+                    <p>✅ Ask feature for user questions</p>
+                    <br>
+                    <p><strong style="color: white;">🌟 My Mission:</strong> Free, secure education platform for Ethiopia.</p>
+                    <br>
+                    <p><em>- Muhammad Ilyas | Full Stack Developer</em></p>
+                    <p><em>📧 ilyas@hayuboriacademy.edu.et</em></p>
+                    <p><em>🤖 @Hayubori_academyBot</em></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-comment-dots"></i> Share Your Feedback</h2>
+                    <button class="close-modal" onclick="closeModal('feedbackModal')">&times;</button>
+                </div>
+                <div>
+                    <p style="font-size: 16px; margin-bottom: 10px; color: rgba(255,255,255,0.8);">Your feedback helps me improve!</p>
+                    <div class="star-rating" id="starRating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="feedbackRating" value="0">
+                    <form id="feedbackForm">
+                        <textarea rows="5" id="feedbackText" placeholder="What do you love? What can be better?" style="width:100%; margin:15px 0; border-radius:25px; padding:18px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:white;"></textarea>
+                        <button type="submit" style="width:100%; padding:16px; border-radius:50px;"><i class="fas fa-heart"></i> Submit Feedback</button>
+                    </form>
+                    <p id="feedbackThanks" style="display:none; color:#38ef7d; margin-top:15px; text-align:center;">✅ Thank you!</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="privacyModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-shield-alt"></i> Privacy Policy</h2>
+                    <button class="close-modal" onclick="closeModal('privacyModal')">&times;</button>
+                </div>
+                <div style="line-height: 1.8; color: rgba(255,255,255,0.8);">
+                    <p><strong style="color: white;">Your Data is Safe</strong></p>
+                    <br>
+                    <p>📌 Data collected: Name, email, phone, photo, exam scores, payment history.</p>
+                    <p>🔐 All data encrypted and stored securely in MongoDB.</p>
+                    <p>📸 Exam photos only used for identity verification.</p>
+                    <p>👨‍👩‍👧 Parents can only view their child's records.</p>
+                    <p>🗑️ Request deletion: privacy@hayuboriacademy.edu.et</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="contactModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2><i class="fas fa-address-card"></i> Contact</h2>
+                    <button class="close-modal" onclick="closeModal('contactModal')">&times;</button>
+                </div>
+                <div style="line-height: 1.9; color: rgba(255,255,255,0.8);">
+                    <p><strong style="color: white;">👨‍💻 Created by Muhammad Ilyas</strong></p>
+                    <br>
+                    <p>📧 Support: <strong>ilyas@hayuboriacademy.edu.et</strong></p>
+                    <p>🤖 Telegram: <strong>@Hayubori_academyBot</strong></p>
+                    <p>📞 Phone: <strong>+251-900-123456</strong></p>
+                    <p>📍 Location: <strong>Addis Ababa, Ethiopia</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
+                    <a onclick="openModal('feedbackModal')"><i class="fas fa-comment-dots"></i> Feedback</a>
+                    <a onclick="openModal('privacyModal')"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a onclick="openModal('contactModal')"><i class="fas fa-address-card"></i> Contact</a>
+                    <a href="ask.html"><i class="fas fa-question-circle"></i> Ask</a>
+                </div>
+                <div class="footer-divider"></div>
+                <div class="footer-bottom">
+                    <div class="footer-social">
+                        <a href="https://t.me/MuhammadIlyas" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://github.com/muhammad-ilyas" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="mailto:ilyas@hayuboriacademy.edu.et"><i class="fas fa-envelope"></i></a>
+                    </div>
+                    <div class="footer-copy">
+                        <span class="heart">❤️</span> <strong>Muhammad Ilyas</strong> <span class="copy">&copy; 2026</span>
+                        <span class="sep">|</span>
+                        <span class="academy">Hayu Bori Academy</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/ask.js"></script>
+</body>
+                                                                         </html>
