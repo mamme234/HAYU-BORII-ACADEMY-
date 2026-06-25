@@ -7,41 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .ask-btn-fixed {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-            color: white;
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.4);
-            text-decoration: none;
-            z-index: 999;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-        .ask-btn-fixed:hover {
-            transform: scale(1.1);
-            box-shadow: 0 15px 40px rgba(108, 92, 231, 0.6);
-        }
-        @media (max-width: 768px) {
-            .ask-btn-fixed {
-                width: 55px;
-                height: 55px;
-                font-size: 24px;
-                bottom: 20px;
-                right: 20px;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -54,25 +19,32 @@
                 </div>
             </div>
             <div class="flag"><span style="background:#078930;"></span><span style="background:#fcdd09;"></span><span style="background:#da121a;"></span></div>
-            <p style="color:white; margin-top:10px;">❓ Ask Anything</p>
+            <p style="color:white; margin-top:10px;">❓ Ask Questions - Instant Auto-Answers!</p>
         </div>
 
         <div class="form-card">
             <h2><i class="fas fa-question-circle"></i> Ask a Question</h2>
-            <p style="color:rgba(255,255,255,0.6); margin-bottom:20px;">Have a question about Hayu Bori Academy? Ask here and we'll respond within 24-48 hours.</p>
+            <p style="color:rgba(255,255,255,0.6); margin-bottom:20px;">
+                Ask anything about Hayu Bori Academy! Our AI will answer instantly. 🤖
+            </p>
             <form id="askForm">
                 <div class="form-group"><label>Your Name *</label><input type="text" id="askName" required></div>
                 <div class="form-group"><label>Your Email *</label><input type="email" id="askEmail" required></div>
-                <div class="form-group"><label>Your Question *</label><textarea rows="5" id="askQuestion" required placeholder="What would you like to know about Hayu Bori Academy?"></textarea></div>
+                <div class="form-group"><label>Your Question *</label>
+                    <textarea rows="5" id="askQuestion" required placeholder="What would you like to know about Hayu Bori Academy?"></textarea>
+                </div>
                 <button type="submit" class="btn-success">Submit Question →</button>
             </form>
-            <div id="askSuccess" style="display:none; color:#38ef7d; margin-top:20px; padding:20px; background:rgba(56,239,125,0.1); border-radius:20px; text-align:center;">
-                ✅ Your question has been submitted! We'll respond within 24-48 hours.
+            <div id="askSuccess" style="display:none; color:#38ef7d; margin-top:20px; padding:20px; background:rgba(56,239,125,0.1); border-radius:20px; text-align:center; white-space:pre-line;">
+                ✅ Your question has been submitted!
             </div>
         </div>
 
         <div class="form-card" style="margin-top:30px;">
-            <h2><i class="fas fa-comments"></i> Recent Questions & Answers</h2>
+            <h2><i class="fas fa-comments"></i> Questions & Auto-Answers</h2>
+            <p style="color:rgba(255,255,255,0.4); font-size:13px; margin-bottom:15px;">
+                <i class="fas fa-sync-alt"></i> Auto-refreshes every 5 seconds for real-time updates
+            </p>
             <div id="questionsList" style="margin-top:20px;">
                 <p style="color:rgba(255,255,255,0.6);">Loading questions...</p>
             </div>
@@ -97,7 +69,7 @@
                     <p>✅ 4 Terms payment system with CBE, Awash, Telebirr, Coop</p>
                     <p>✅ Finance dashboard with approval and receipt system</p>
                     <p>✅ Admin panel for full control</p>
-                    <p>✅ Ask feature for user questions</p>
+                    <p>✅ Real-time Q&A with AI auto-answers</p>
                     <br>
                     <p><strong style="color: white;">🌟 My Mission:</strong> Free, secure education platform for Ethiopia.</p>
                     <br>
@@ -194,12 +166,7 @@
         </footer>
     </div>
 
-    <!-- Ask Button (Floating) -->
-    <a href="ask.html" class="ask-btn-fixed" title="Ask a Question">
-        <i class="fas fa-question-circle"></i>
-    </a>
-
     <script src="js/main.js"></script>
     <script src="js/ask.js"></script>
 </body>
-    </html>
+                                                                             </html>
