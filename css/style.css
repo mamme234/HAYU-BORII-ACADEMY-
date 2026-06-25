@@ -475,3 +475,34 @@ button:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(102,126
     .footer-bottom { flex-direction: column; text-align: center; justify-content: center; }
     .footer-copy { justify-content: center; }
     }
+/* ==================== PAYMENT BADGES ==================== */
+.badge-paid { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+.badge-unpaid { background: linear-gradient(135deg, #fa709a, #fee140); color: #1a1a2e; }
+.badge-pending { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+
+/* ==================== QR CODE ==================== */
+.qr-container {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    margin: 10px auto;
+}
+.qr-container img {
+    max-width: 200px;
+    height: auto;
+}
+
+/* ==================== ID CARD FRONT & BACK ==================== */
+.id-card-front, .id-card-back {
+    width: 550px;
+    background: linear-gradient(145deg, #0a0a2a, #050510);
+    border-radius: 20px;
+    padding: 25px;
+    margin: 25px auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    border: 1px solid rgba(102,126,234,0.3);
+}
+.id-card-back {
+    background: linear-gradient(145deg, #050510, #0a0a2a);
+    }
