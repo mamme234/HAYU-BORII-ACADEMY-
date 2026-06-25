@@ -83,10 +83,6 @@ function showTakeMyIdButton(studentId, fullName) {
     }
 }
 
-function goToDashboard() {
-    location.reload();
-}
-
 // ==================== STUDENT EXAM QUESTIONS ====================
 function generateStudentExamQuestions(grade) {
     // Nursery
@@ -444,7 +440,6 @@ async function initiatePayment(type, amount) {
         return;
     }
 
-    // Show payment method selector
     const method = await showPaymentMethodSelector();
     if (!method) return;
 
@@ -464,7 +459,6 @@ async function initiatePayment(type, amount) {
         hideLoading();
 
         if (result.success && result.paymentUrl) {
-            // Redirect to payment gateway
             window.location.href = result.paymentUrl;
         } else {
             alert('Failed to initiate payment. Please try again.');
@@ -562,14 +556,6 @@ function displayStudentProfile(student) {
     const issueDate = new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
     const qrCode = student.qrCode || '';
     
-    // Calculate average and rank
-    const average = student.examScore || 0;
-    let rank = 'Average';
-    if (average >= 90) rank = 'Excellent 🌟';
-    else if (average >= 75) rank = 'Good 👍';
-    else if (average >= 60) rank = 'Satisfactory 📚';
-    else rank = 'Needs Improvement 📖';
-    
     // Determine if payments are complete
     const paymentsComplete = student.registration_paid && student.term1_paid && student.term2_paid && student.term3_paid && student.term4_paid;
     
@@ -589,7 +575,7 @@ function displayStudentProfile(student) {
             </div>
         </div>
 
-        <!-- ID CARD - FRONT SIDE -->
+        <!-- ID CARD - FRONT SIDE (Photo + Basic Info ONLY - NO RANK/AVERAGE) -->
         <div class="id-card-front" id="student-id-card-front">
             <div style="text-align: center; margin-bottom: 15px;">
                 <h1 style="color: #a8b5ff; font-size: 22px; letter-spacing: 2px;">HAYU BORI ACADEMY</h1>
@@ -638,7 +624,7 @@ function displayStudentProfile(student) {
             </div>
         </div>
 
-        <!-- ID CARD - BACK SIDE (QR Code) -->
+        <!-- ID CARD - BACK SIDE (QR Code with ALL Data: Rank, Average, Abilities) -->
         <div class="id-card-back" id="student-id-card-back">
             <div style="text-align: center; margin-bottom: 15px;">
                 <h2 style="color: white; font-size: 16px;">🔐 VERIFICATION</h2>
@@ -648,27 +634,19 @@ function displayStudentProfile(student) {
             
             <div style="text-align:center; margin: 15px 0;">
                 <div style="display:inline-block; background:white; padding:15px; border-radius:15px;">
-                    ${qrCode ? `<img src="${qrCode}" style="width:180px; height:180px;" alt="QR Code">` : `<div style="width:180px; height:180px; background:rgba(255,255,255,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.3);">QR Code</div>`}
+                    ${qrCode ? `<img src="${qrCode}" style="width:180px; height:180px;" alt="QR Code">` : `<div style="width:180px; height:180px; background:rgba(255,255,255,0.1); border-radius:15px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); font-size:14px;">QR Code<br>Loading...</div>`}
                 </div>
             </div>
 
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0; padding:10px; background:rgba(255,255,255,0.05); border-radius:10px;">
-                <div>
-                    <p style="color:rgba(255,255,255,0.5); font-size:9px; margin:0;">Rank</p>
-                    <p style="color:#ffd93d; font-size:16px; font-weight:600; margin:0;">${rank}</p>
-                </div>
-                <div>
-                    <p style="color:rgba(255,255,255,0.5); font-size:9px; margin:0;">Average</p>
-                    <p style="color:#a8b5ff; font-size:16px; font-weight:600; margin:0;">${average}%</p>
-                </div>
-                <div>
-                    <p style="color:rgba(255,255,255,0.5); font-size:9px; margin:0;">Status</p>
-                    <p style="color:#38ef7d; font-size:14px; font-weight:600; margin:0;">${paymentsComplete ? '✅ Active' : '⏳ Pending'}</p>
-                </div>
-                <div>
-                    <p style="color:rgba(255,255,255,0.5); font-size:9px; margin:0;">School</p>
-                    <p style="color:white; font-size:12px; margin:0;">Hayu Bori</p>
-                </div>
+            <!-- QR Code Info - This data is embedded IN the QR code, not displayed here -->
+            <div style="display:grid; grid-template-columns:1fr; gap:8px; margin:15px 0; padding:15px; background:rgba(255,255,255,0.05); border-radius:10px; text-align:center;">
+                <p style="color:rgba(255,255,255,0.4); font-size:11px; margin:0;">
+                    🔒 <strong style="color:white;">Scan QR Code</strong> with password<br>
+                    <span style="color:#a8b5ff; font-size:12px;">Password: <strong>hayubori_student_id</strong></span>
+                </p>
+                <p style="color:rgba(255,255,255,0.3); font-size:10px; margin:0;">
+                    QR contains: Student ID, Name, Grade, Rank, Average, Abilities, Status
+                </p>
             </div>
 
             <div style="text-align:center; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
