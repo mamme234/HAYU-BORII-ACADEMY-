@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Tourist - Hayu Bori Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <img src="logo.png" alt="Hayu Bori Academy" style="width:80px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/80?text=HBA'">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="statusDot" class="status-dot offline" title="Checking server..."></span>
+                    <h1 style="margin:0;">🏫 Hayu Bori Academy</h1>
+                </div>
+            </div>
+            <div class="flag"><span style="background:#078930;"></span><span style="background:#fcdd09;"></span><span style="background:#da121a;"></span></div>
+            <p style="color:white; margin-top:10px;">🌍 Welcome to Hayu Bori Academy</p>
+        </div>
+
+        <div id="touristContent" style="padding:20px;">
+            <div style="text-align:center; margin-bottom:40px;">
+                <div style="font-size:60px; margin-bottom:20px;">🌍</div>
+                <h2 style="color:white;">About Hayu Bori Academy</h2>
+                <p style="color:rgba(255,255,255,0.7);">Ethiopia's Premier Digital Education Platform</p>
+            </div>
+
+            <div class="grid-2" id="aboutInfo">
+                <div class="card"><h3>📚 Our Mission</h3><p style="color:rgba(255,255,255,0.7);">To provide quality education and develop future leaders of Ethiopia.</p></div>
+                <div class="card"><h3>👁️ Our Vision</h3><p style="color:rgba(255,255,255,0.7);">To be the leading educational institution in Ethiopia, producing competent and ethical graduates.</p></div>
+                <div class="card"><h3>🌟 Core Values</h3><p style="color:rgba(255,255,255,0.7);">Excellence • Integrity • Innovation • Community Service</p></div>
+                <div class="card"><h3>📚 Programs</h3><p style="color:rgba(255,255,255,0.7);">KG • Elementary (Grade 1-4) • Middle School (Grade 5-8)</p></div>
+                <div class="card"><h3>🏫 Facilities</h3><p style="color:rgba(255,255,255,0.7);">Library • Computer Lab • Science Lab • Sports Field • Art Room</p></div>
+                <div class="card"><h3>📍 Location</h3><p style="color:rgba(255,255,255,0.7);">Addis Ababa, Ethiopia</p></div>
+            </div>
+
+            <div class="form-card" style="text-align:center; margin-top:30px;">
+                <h2>📱 Connect With Us</h2>
+                <div style="display:flex; gap:20px; justify-content:center; margin-top:20px; flex-wrap:wrap;">
+                    <a href="https://t.me/Hayubori_academyBot" target="_blank" class="btn-success" style="padding:12px 30px; text-decoration:none; display:inline-block;">🤖 Telegram Bot</a>
+                    <a href="mailto:info@hayuboriacademy.edu.et" class="btn-warning" style="padding:12px 30px; text-decoration:none; display:inline-block;">📧 Email Us</a>
+                    <a href="ask.html" class="btn" style="padding:12px 30px; text-decoration:none; display:inline-block;">❓ Ask a Question</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== MODALS ==================== -->
+        <!-- Copy modals from index.html -->
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                    <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
+                    <a onclick="openModal('feedbackModal')"><i class="fas fa-comment-dots"></i> Feedback</a>
+                    <a onclick="openModal('privacyModal')"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a onclick="openModal('contactModal')"><i class="fas fa-address-card"></i> Contact</a>
+                    <a href="ask.html"><i class="fas fa-question-circle"></i> Ask</a>
+                </div>
+                <div class="footer-divider"></div>
+                <div class="footer-bottom">
+                    <div class="footer-social">
+                        <a href="https://t.me/MuhammadIlyas" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://github.com/muhammad-ilyas" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="mailto:ilyas@hayuboriacademy.edu.et"><i class="fas fa-envelope"></i></a>
+                    </div>
+                    <div class="footer-copy">
+                        <span class="heart">❤️</span> <strong>Muhammad Ilyas</strong> <span class="copy">&copy; 2026</span>
+                        <span class="sep">|</span>
+                        <span class="academy">Hayu Bori Academy</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/tourist.js"></script>
+</body>
+  </html>
