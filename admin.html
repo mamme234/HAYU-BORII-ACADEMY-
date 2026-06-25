@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Admin Panel - Hayu Bori Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Admin Panel</h1>
+            <p style="color:white;">Hayu Bori Academy - Full Control</p>
+        </div>
+
+        <div id="adminLoginSection">
+            <div class="form-card">
+                <h2><i class="fas fa-lock"></i> Admin Login</h2>
+                <form id="adminLoginForm">
+                    <div class="form-group"><label>Username</label><input type="text" id="adminUsername" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="adminPassword" required></div>
+                    <button type="submit">Login →</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="adminDashboardSection" style="display:none;">
+            <!-- Stats -->
+            <div class="grid-4" id="adminStats">
+                <div class="card"><h3>Students</h3><p style="font-size:32px;" id="totalStudents">0</p></div>
+                <div class="card"><h3>Teachers</h3><p style="font-size:32px;" id="totalTeachers">0</p></div>
+                <div class="card"><h3>Revenue</h3><p style="font-size:32px;" id="totalRevenue">0 ETB</p></div>
+                <div class="card"><h3>Pending Questions</h3><p style="font-size:32px;" id="pendingQuestions">0</p></div>
+            </div>
+
+            <!-- Manage Students -->
+            <div class="form-card">
+                <h2><i class="fas fa-users"></i> All Students</h2>
+                <div id="allStudentsList"><p style="color:rgba(255,255,255,0.6);">Loading...</p></div>
+            </div>
+
+            <!-- Manage Teachers -->
+            <div class="form-card">
+                <h2><i class="fas fa-chalkboard-user"></i> All Teachers</h2>
+                <div id="allTeachersList"><p style="color:rgba(255,255,255,0.6);">Loading...</p></div>
+            </div>
+        </div>
+
+        <!-- ==================== MODALS ==================== -->
+        <!-- Copy modals from index.html -->
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="index.html"><i class="fas fa-home"></i> Home</a>
+                    <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
+                    <a onclick="openModal('privacyModal')"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a onclick="openModal('contactModal')"><i class="fas fa-address-card"></i> Contact</a>
+                </div>
+                <div class="footer-divider"></div>
+                <div class="footer-copy" style="text-align:center;">
+                    <span class="heart">❤️</span> <strong>Muhammad Ilyas</strong> <span class="copy">&copy; 2026</span>
+                    <span class="sep">|</span>
+                    <span class="academy">Hayu Bori Academy</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
