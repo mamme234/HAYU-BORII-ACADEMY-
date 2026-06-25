@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Finance Dashboard - Hayu Bori Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <img src="logo.png" alt="Hayu Bori Academy" style="width:80px; border-radius:50%;" onerror="this.src='https://via.placeholder.com/80?text=HBA'">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="statusDot" class="status-dot offline" title="Checking server..."></span>
+                    <h1 style="margin:0;">🏫 Hayu Bori Academy</h1>
+                </div>
+            </div>
+            <div class="flag"><span style="background:#078930;"></span><span style="background:#fcdd09;"></span><span style="background:#da121a;"></span></div>
+            <p style="color:white; margin-top:10px;">💰 Finance Dashboard</p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="financeLoginSection">
+            <div class="form-card">
+                <h2><i class="fas fa-lock"></i> Finance Login</h2>
+                <form id="financeLoginForm">
+                    <div class="form-group"><label>Email</label><input type="email" id="financeEmail" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="financePassword" required></div>
+                    <button type="submit">Login →</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="financeDashboardSection" style="display:none;">
+            <!-- Stats -->
+            <div class="grid-4" id="financeStats">
+                <div class="card"><h3>Pending</h3><p style="font-size:32px;" id="pendingCount">0</p></div>
+                <div class="card"><h3>Today's Revenue</h3><p style="font-size:32px;" id="todayRevenue">0 ETB</p></div>
+                <div class="card"><h3>This Week</h3><p style="font-size:32px;" id="weekRevenue">0 ETB</p></div>
+                <div class="card"><h3>This Month</h3><p style="font-size:32px;" id="monthRevenue">0 ETB</p></div>
+            </div>
+
+            <!-- Pending Payments -->
+            <div class="form-card">
+                <h2><i class="fas fa-clock"></i> Pending Payments</h2>
+                <div id="pendingPaymentsList">
+                    <p style="color:rgba(255,255,255,0.6);">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Payment History -->
+            <div class="form-card">
+                <h2><i class="fas fa-history"></i> Payment History</h2>
+                <div id="paymentHistoryList">
+                    <p style="color:rgba(255,255,255,0.6);">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Add Chappa Modal -->
+            <div id="chappaModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-stamp"></i> Add Chappa to Receipt</h2>
+                        <button class="close-modal" onclick="closeChappaModal()">&times;</button>
+                    </div>
+                    <form id="chappaForm">
+                        <input type="hidden" id="chappaPaymentId">
+                        <div class="form-group"><label>Chappa / Approval Note</label>
+                            <textarea rows="4" id="chappaText" required placeholder="Add your approval note or chappa here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn-success">Approve & Send Chappa →</button>
+                        <button type="button" onclick="rejectPayment()" class="btn-danger" style="margin-top:10px;">Reject Payment</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== MODALS ==================== -->
+        <!-- (Copy modals from index.html) -->
+        <div id="purposeModal" class="modal">...</div>
+        <div id="feedbackModal" class="modal">...</div>
+        <div id="privacyModal" class="modal">...</div>
+        <div id="contactModal" class="modal">...</div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a onclick="openModal('purposeModal')"><i class="fas fa-lightbulb"></i> Purpose</a>
+                    <a onclick="openModal('feedbackModal')"><i class="fas fa-comment-dots"></i> Feedback</a>
+                    <a onclick="openModal('privacyModal')"><i class="fas fa-shield-alt"></i> Privacy</a>
+                    <a onclick="openModal('contactModal')"><i class="fas fa-address-card"></i> Contact</a>
+                    <a href="ask.html"><i class="fas fa-question-circle"></i> Ask</a>
+                </div>
+                <div class="footer-divider"></div>
+                <div class="footer-bottom">
+                    <div class="footer-social">
+                        <a href="https://t.me/MuhammadIlyas" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://github.com/muhammad-ilyas" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="mailto:ilyas@hayuboriacademy.edu.et"><i class="fas fa-envelope"></i></a>
+                    </div>
+                    <div class="footer-copy">
+                        <span class="heart">❤️</span> <strong>Muhammad Ilyas</strong> <span class="copy">&copy; 2026</span>
+                        <span class="sep">|</span>
+                        <span class="academy">Hayu Bori Academy</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/finance.js"></script>
+</body>
+                                                                                                             </html>
